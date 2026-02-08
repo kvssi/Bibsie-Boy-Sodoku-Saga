@@ -19,8 +19,7 @@
             --hot-pink: #FF6B9D;
             --deep-purple: #2D0A1F;
             --gold: #FFD700;
-            --stone: #4A4A4A;
-            --stone-light: #7A7A7A;
+            --grid-line: #FF1744;
         }
         
         body {
@@ -115,7 +114,7 @@
             display: flex;
         }
         
-        /* Title Screen mit Poster */
+        /* Title Screen */
         .title-screen-bg {
             position: absolute;
             top: 0;
@@ -222,7 +221,7 @@
         }
         
         .level-btn.locked {
-            border-color: var(--stone-light);
+            border-color: #666;
             color: #666;
             cursor: not-allowed;
             opacity: 0.6;
@@ -278,7 +277,7 @@
             align-items: center;
             width: 100%;
             max-width: 500px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             color: white;
             font-size: 1.2rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
@@ -291,130 +290,152 @@
             text-shadow: 0 0 10px rgba(255,215,0,0.5);
         }
         
+        /* Hero Display - verbessert */
         .hero-display {
             display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
             z-index: 20;
+            position: relative;
+        }
+        
+        .hero-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .hero-img {
-            width: 80px;
-            height: 120px;
+            width: 100px;
+            height: 140px;
             object-fit: contain;
-            filter: drop-shadow(0 5px 15px rgba(255,45,85,0.6));
+            filter: drop-shadow(0 10px 20px rgba(255,45,85,0.8));
             animation: heroFloat 3s infinite ease-in-out;
+            /* Entfernt weißen Hintergrund wenn möglich */
+            mix-blend-mode: normal;
         }
         
         @keyframes heroFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+        }
+        
+        .platform-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .platform-img {
-            width: 100px;
-            height: 60px;
+            width: 120px;
+            height: 80px;
             object-fit: contain;
-            opacity: 0.8;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+            margin-top: -20px;
         }
         
+        /* Sudoku Container */
         .sudoku-container {
             position: relative;
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
             border-radius: 20px;
             box-shadow: 
-                0 0 30px rgba(255,45,85,0.3),
+                0 0 40px rgba(255,45,85,0.4),
                 inset 0 0 30px rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             z-index: 20;
+            border: 2px solid rgba(255,45,85,0.5);
         }
         
-        /* CSS-ONLY GRID - Kein Bild nötig! */
+        /* VERBESSERTES GRID */
         .sudoku-grid {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
-            gap: 1px;
-            background: var(--neon-red);
-            padding: 3px;
-            border-radius: 10px;
+            gap: 0;
+            background: var(--grid-line);
+            padding: 4px;
+            border-radius: 12px;
             box-shadow: 
-                0 0 20px rgba(255,45,85,0.6),
-                inset 0 0 10px rgba(255,255,255,0.2);
+                0 0 30px rgba(255,23,68,0.8),
+                inset 0 0 20px rgba(255,255,255,0.1);
             max-width: 90vw;
             width: 400px;
             position: relative;
+            overflow: hidden;
         }
         
-        /* Dicke Linien alle 3 Zellen */
+        /* Dicke 3x3 Linien */
         .sudoku-grid::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                linear-gradient(to right, 
-                    transparent 33.33%, 
-                    var(--neon-red) 33.33%, 
-                    var(--neon-red) 33.66%, 
-                    transparent 33.66%,
-                    transparent 66.66%,
-                    var(--neon-red) 66.66%,
-                    var(--neon-red) 66.99%,
-                    transparent 66.99%
-                ),
-                linear-gradient(to bottom, 
-                    transparent 33.33%, 
-                    var(--neon-red) 33.33%, 
-                    var(--neon-red) 33.66%, 
-                    transparent 33.66%,
-                    transparent 66.66%,
-                    var(--neon-red) 66.66%,
-                    var(--neon-red) 66.99%,
-                    transparent 66.99%
-                );
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background: transparent;
+            border: 3px solid #FF1744;
             pointer-events: none;
             z-index: 10;
-            border-radius: 10px;
+            box-shadow: 
+                inset 0 0 0 1px #FF1744,
+                inset 0 0 0 4px transparent,
+                inset 0 0 0 5px #FF1744,
+                inset 0 0 0 8px transparent,
+                inset 0 0 0 9px #FF1744;
         }
         
         .cell {
             aspect-ratio: 1;
-            background: rgba(45,10,31,0.95);
+            background: rgba(20, 5, 15, 0.95);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: clamp(1.2rem, 5vw, 1.8rem);
+            font-size: clamp(1.4rem, 5vw, 2rem);
             color: white;
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
-            z-index: 5;
+            border: 1px solid rgba(255,23,68,0.6);
+            font-weight: bold;
+        }
+        
+        /* Dicke Linien alle 3 Zellen */
+        .cell:nth-child(3n) {
+            border-right: 3px solid #FF1744;
+        }
+        
+        .cell:nth-child(n+19):nth-child(-n+27),
+        .cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 3px solid #FF1744;
         }
         
         .cell.fixed {
-            background: rgba(255,45,85,0.4);
-            font-weight: bold;
-            color: var(--hot-pink);
+            background: rgba(255,23,68,0.25);
+            color: #FF6B9D;
+            text-shadow: 0 0 10px rgba(255,107,157,0.5);
         }
         
         .cell.selected {
-            background: rgba(255,215,0,0.4);
-            box-shadow: inset 0 0 15px rgba(255,215,0,0.6);
+            background: rgba(255,215,0,0.3);
+            box-shadow: inset 0 0 20px rgba(255,215,0,0.6);
             animation: cellPulse 1s infinite;
+            border-color: #FFD700;
         }
         
         .cell.error {
             background: rgba(255,0,0,0.4);
             animation: shake 0.5s;
+            color: #FF1744;
         }
         
         @keyframes cellPulse {
-            0%, 100% { box-shadow: inset 0 0 10px rgba(255,215,0,0.4); }
-            50% { box-shadow: inset 0 0 20px rgba(255,215,0,0.8); }
+            0%, 100% { box-shadow: inset 0 0 15px rgba(255,215,0,0.4); }
+            50% { box-shadow: inset 0 0 30px rgba(255,215,0,0.8); }
         }
         
         @keyframes shake {
@@ -447,12 +468,13 @@
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(5px);
+            font-weight: bold;
         }
         
         .num-btn:hover, .num-btn:active {
             background: var(--neon-red);
             transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(255,45,85,0.8);
+            box-shadow: 0 0 20px rgba(255,45,85,0.8);
         }
         
         .num-btn.action {
@@ -468,7 +490,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.9);
             display: none;
             align-items: center;
             justify-content: center;
@@ -602,11 +624,15 @@
                 width: 95vw;
             }
             .cell {
-                font-size: 1.2rem;
+                font-size: 1.3rem;
             }
             .hero-img {
-                width: 60px;
-                height: 90px;
+                width: 80px;
+                height: 110px;
+            }
+            .platform-img {
+                width: 100px;
+                height: 60px;
             }
         }
     </style>
@@ -662,8 +688,12 @@
         </div>
         
         <div class="hero-display">
-            <img src="hero.png" alt="Bibsie Boy" class="hero-img" id="gameHero">
-            <img src="platform.png" alt="Platform" class="platform-img">
+            <div class="hero-container">
+                <img src="hero.png" alt="Bibsie Boy" class="hero-img" id="gameHero">
+            </div>
+            <div class="platform-container">
+                <img src="platform.png" alt="Platform" class="platform-img">
+            </div>
         </div>
         
         <div class="sudoku-container">
@@ -761,7 +791,7 @@
             { name: "PRINZESSIN MARY", difficulty: "legend", color: "#FFD700" }
         ];
         
-        // Vordefinierte, garantiert lösbare Sudokus für jedes Level
+        // Vordefinierte, garantiert lösbare Sudokus
         const presetSudokus = [
             // Level 1: Einfach
             {
@@ -813,7 +843,7 @@
                     [7,9,2,8,4,6,1,3,5]
                 ]
             },
-            // Level 3: Mittel (korrigiert, garantiert lösbar)
+            // Level 3: Mittel
             {
                 puzzle: [
                     [0,0,0,6,0,0,4,0,0],
@@ -842,7 +872,6 @@
         
         // Sudoku Generator mit Validierung
         function generateSudoku(level) {
-            // Für Level 1-3: Nutze vordefinierte, getestete Sudokus
             if (level <= 3 && presetSudokus[level-1]) {
                 const preset = presetSudokus[level-1];
                 gameGrid = preset.puzzle.map(row => [...row]);
@@ -858,21 +887,16 @@
                 return;
             }
             
-            // Für höhere Level: Generiere mit Backtracking
             let grid = Array(9).fill().map(() => Array(9).fill(0));
             
-            // Fülle diagonal Boxen
             for (let i = 0; i < 9; i += 3) {
                 fillBox(grid, i, i);
             }
             
-            // Löse komplett
             solveSudoku(grid);
             
-            // Speichere Lösung
             solutionGrid = grid.map(row => [...row]);
             
-            // Entferne Zahlen basierend auf Schwierigkeit
             let cellsToRemove = {
                 'easy': 35,
                 'medium': 45,
@@ -880,7 +904,6 @@
                 'legend': 55
             }[levels[level-1].difficulty];
             
-            // Entferne strategisch, nicht zufällig
             removeCellsStrategic(grid, cellsToRemove);
             
             gameGrid = grid;
@@ -895,7 +918,6 @@
         }
         
         function removeCellsStrategic(grid, count) {
-            // Entferne Zahlen so, dass es immer lösbar bleibt
             let removed = 0;
             let attempts = 0;
             while (removed < count && attempts < 1000) {
@@ -905,12 +927,11 @@
                     let temp = grid[row][col];
                     grid[row][col] = 0;
                     
-                    // Prüfe ob es noch eindeutig lösbar ist
                     let testGrid = grid.map(r => [...r]);
                     if (hasUniqueSolution(testGrid)) {
                         removed++;
                     } else {
-                        grid[row][col] = temp; // Zurücksetzen
+                        grid[row][col] = temp;
                     }
                 }
                 attempts++;
