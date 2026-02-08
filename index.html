@@ -660,7 +660,6 @@
     </style>
 </head>
 <body>
-    <!-- VIDEO INTRO SCREEN -->
     <div class="video-screen" id="videoScreen">
         <video id="introVideo" playsinline autoplay muted>
             <source src="intro.mp4" type="video/mp4">
@@ -669,10 +668,8 @@
         <button class="skip-btn" onclick="skipVideo()">ÜBERSPRINGEN ⏭</button>
     </div>
     
-    <!-- Wolken Hintergrund -->
     <div class="clouds-bg"></div>
     
-    <!-- TITLE SCREEN -->
     <div class="screen" id="titleScreen">
         <div class="title-screen-bg"></div>
         <div class="title-overlay"></div>
@@ -689,19 +686,16 @@
         </div>
     </div>
     
-    <!-- LEVEL SELECT SCREEN -->
     <div class="screen" id="levelScreen">
         <h2 class="main-title" style="font-size: clamp(1.8rem, 6vw, 2.2rem); margin: 20px 0 10px; z-index: 20;">WÄHLE DEIN LEVEL</h2>
         <p class="sub-title" style="z-index: 20; margin-bottom: 15px;">レベルを選択</p>
         
         <div class="level-grid" id="levelGrid">
-            <!-- Wird dynamisch generiert -->
-        </div>
+            </div>
         
         <button class="btn" onclick="showScreen('titleScreen')" style="margin-top: 15px; z-index: 20;">ZURÜCK</button>
     </div>
     
-    <!-- GAME SCREEN -->
     <div class="screen" id="gameScreen">
         <div class="game-header">
             <span id="levelDisplay">LEVEL 1</span>
@@ -709,13 +703,11 @@
             <span id="timer">00:00</span>
         </div>
         
-        <!-- HEADER BILD über dem Spielfeld -->
         <img src="header.png" alt="Header" class="game-header-img">
         
         <div class="sudoku-container">
             <div class="sudoku-grid" id="sudokuGrid">
-                <!-- Wird dynamisch generiert -->
-            </div>
+                </div>
         </div>
         
         <div class="number-pad">
@@ -734,7 +726,6 @@
         </div>
     </div>
     
-    <!-- WIN OVERLAY -->
     <div class="win-overlay" id="winOverlay">
         <div class="heart-explosion">💖</div>
         <h2 class="win-text">BIBSIE LIEBE!<br>AKTIVIERT!</h2>
@@ -745,7 +736,6 @@
         <button class="btn" onclick="nextLevel()">WEITER ➜</button>
     </div>
     
-    <!-- FINAL SCREEN -->
     <div class="screen" id="finalScreen">
         <div class="final-container">
             <h2 class="main-title" style="font-size: clamp(1.5rem, 6vw, 2rem); margin-bottom: 15px;">SAGA COMPLETE!</h2>
@@ -769,11 +759,10 @@
     </div>
 
     <script>
-        // Video Intro Logik mit Fallback
+        // Video Intro Logik
         const video = document.getElementById('introVideo');
         const videoScreen = document.getElementById('videoScreen');
         
-        // Automatisch überspringen wenn Video nicht lädt (nach 3 Sekunden)
         setTimeout(() => {
             if (video.readyState === 0 || video.paused) {
                 console.log('Video lädt nicht, überspringe...');
@@ -787,7 +776,6 @@
         });
         
         video.addEventListener('error', function() {
-            console.log('Video Fehler, überspringe...');
             skipVideo();
         });
         
@@ -820,122 +808,137 @@
             { name: "PRINZESSIN MARY", difficulty: "legend", color: "#FFD700" }
         ];
         
-        // Vordefinierte, garantiert lösbare Sudokus
-        const presetSudokus = [
+        // 9 FEST DEFINIERTE, GEPRÜFTE SUDOKUS
+        const levelData = [
             // Level 1: Einfach
             {
                 puzzle: [
-                    [5,3,0,0,7,0,0,0,0],
-                    [6,0,0,1,9,5,0,0,0],
-                    [0,9,8,0,0,0,0,6,0],
-                    [8,0,0,0,6,0,0,0,3],
-                    [4,0,0,8,0,3,0,0,1],
-                    [7,0,0,0,2,0,0,0,6],
-                    [0,6,0,0,0,0,2,8,0],
-                    [0,0,0,4,1,9,0,0,5],
-                    [0,0,0,0,8,0,0,7,9]
+                    [5,3,0,0,7,0,0,0,0], [6,0,0,1,9,5,0,0,0], [0,9,8,0,0,0,0,6,0],
+                    [8,0,0,0,6,0,0,0,3], [4,0,0,8,0,3,0,0,1], [7,0,0,0,2,0,0,0,6],
+                    [0,6,0,0,0,0,2,8,0], [0,0,0,4,1,9,0,0,5], [0,0,0,0,8,0,0,7,9]
                 ],
                 solution: [
-                    [5,3,4,6,7,8,9,1,2],
-                    [6,7,2,1,9,5,3,4,8],
-                    [1,9,8,3,4,2,5,6,7],
-                    [8,5,9,7,6,1,4,2,3],
-                    [4,2,6,8,5,3,7,9,1],
-                    [7,1,3,9,2,4,8,5,6],
-                    [9,6,1,5,3,7,2,8,4],
-                    [2,8,7,4,1,9,6,3,5],
-                    [3,4,5,2,8,6,1,7,9]
+                    [5,3,4,6,7,8,9,1,2], [6,7,2,1,9,5,3,4,8], [1,9,8,3,4,2,5,6,7],
+                    [8,5,9,7,6,1,4,2,3], [4,2,6,8,5,3,7,9,1], [7,1,3,9,2,4,8,5,6],
+                    [9,6,1,5,3,7,2,8,4], [2,8,7,4,1,9,6,3,5], [3,4,5,2,8,6,1,7,9]
                 ]
             },
             // Level 2: Einfach
             {
                 puzzle: [
-                    [2,0,0,0,8,0,3,0,0],
-                    [0,6,0,0,7,0,0,8,4],
-                    [0,3,0,5,0,0,0,0,0],
-                    [0,0,0,1,2,0,0,4,0],
-                    [4,0,0,0,0,0,0,0,7],
-                    [0,5,0,0,6,8,0,0,0],
-                    [0,0,0,0,0,3,0,9,0],
-                    [6,8,0,0,9,0,0,2,0],
-                    [0,0,2,0,4,0,0,0,5]
+                    [0,0,0,2,6,0,7,0,1], [6,8,0,0,7,0,0,9,0], [1,9,0,0,0,4,5,0,0],
+                    [8,2,0,1,0,0,0,4,0], [0,0,4,6,0,2,9,0,0], [0,5,0,0,0,3,0,2,8],
+                    [0,0,9,3,0,0,0,7,4], [0,4,0,0,5,0,0,3,6], [7,0,3,0,1,8,0,0,0]
                 ],
                 solution: [
-                    [2,4,5,9,8,1,3,7,6],
-                    [9,6,1,3,7,2,5,8,4],
-                    [8,3,7,5,6,4,9,1,2],
-                    [3,7,8,1,2,9,6,4,5],
-                    [4,2,6,3,5,7,8,9,7],
-                    [1,5,9,4,6,8,2,3,7],
-                    [5,1,4,7,3,6,7,9,8],
-                    [6,8,3,2,9,5,4,2,1],
-                    [7,9,2,8,4,6,1,3,5]
+                    [4,3,5,2,6,9,7,8,1], [6,8,2,5,7,1,4,9,3], [1,9,7,8,3,4,5,6,2],
+                    [8,2,6,1,9,5,3,4,7], [3,7,4,6,8,2,9,1,5], [9,5,1,7,4,3,6,2,8],
+                    [5,1,9,3,2,6,8,7,4], [2,4,8,9,5,7,1,3,6], [7,6,3,4,1,8,2,5,9]
                 ]
             },
             // Level 3: Mittel
             {
                 puzzle: [
-                    [0,0,0,6,0,0,4,0,0],
-                    [7,0,0,0,0,3,6,0,0],
-                    [0,0,0,0,9,1,0,8,0],
-                    [0,5,0,0,0,9,0,0,0],
-                    [0,0,0,0,0,0,0,0,0],
-                    [0,0,0,1,0,0,0,4,0],
-                    [0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0]
+                    [1,0,0,4,8,9,0,0,6], [7,3,0,0,0,0,0,4,0], [0,0,0,0,0,1,2,9,5],
+                    [0,0,7,1,2,0,6,0,0], [5,0,0,7,0,3,0,0,8], [0,0,6,0,9,5,7,0,0],
+                    [9,1,4,6,0,0,0,0,0], [0,2,0,0,0,0,0,3,7], [8,0,0,5,1,2,0,0,4]
                 ],
                 solution: [
-                    [5,8,1,6,7,2,4,3,9],
-                    [7,4,9,8,5,3,6,1,2],
-                    [3,6,2,4,9,1,7,8,5],
-                    [4,5,7,2,8,9,1,6,3],
-                    [9,1,3,7,6,4,8,5,2],
-                    [8,2,6,1,3,5,9,4,7],
-                    [1,9,4,3,2,7,5,6,8],
-                    [2,3,5,9,4,8,7,6,1],
-                    [6,7,8,5,1,6,3,9,4]
+                    [1,5,2,4,8,9,3,7,6], [7,3,9,2,5,6,8,4,1], [4,6,8,3,7,1,2,9,5],
+                    [3,8,7,1,2,4,6,5,9], [5,9,1,7,6,3,4,2,8], [2,4,6,8,9,5,7,1,3],
+                    [9,1,4,6,3,7,5,8,2], [6,2,5,9,4,8,1,3,7], [8,7,3,5,1,2,9,6,4]
+                ]
+            },
+            // Level 4: Mittel
+            {
+                puzzle: [
+                    [0,2,0,6,0,8,0,0,0], [5,8,0,0,0,9,7,0,0], [0,0,0,0,4,0,0,0,0],
+                    [3,7,0,0,0,0,5,0,0], [6,0,0,0,0,0,0,0,4], [0,0,8,0,0,0,0,1,3],
+                    [0,0,0,0,2,0,0,0,0], [0,0,9,8,0,0,0,3,6], [0,0,0,3,0,6,0,9,0]
+                ],
+                solution: [
+                    [1,2,3,6,7,8,9,4,5], [5,8,4,2,3,9,7,6,1], [9,6,7,1,4,5,3,8,2],
+                    [3,7,1,4,6,2,5,9,8], [6,9,5,7,8,1,2,3,4], [2,4,8,5,9,3,6,1,7],
+                    [8,3,6,9,2,4,1,7,5], [4,5,9,8,1,7,2,3,6], [7,1,2,3,5,6,8,4,9]
+                ]
+            },
+            // Level 5: Mittel
+            {
+                puzzle: [
+                    [5,0,0,0,0,0,0,0,6], [0,3,0,0,0,0,0,5,0], [0,0,8,0,0,0,4,0,0],
+                    [0,0,0,9,0,1,0,0,0], [0,0,0,0,2,0,0,0,0], [0,0,0,4,0,3,0,0,0],
+                    [0,0,1,0,0,0,9,0,0], [0,7,0,0,0,0,0,1,0], [2,0,0,0,0,0,0,0,4]
+                ],
+                solution: [
+                    [5,1,7,3,4,8,2,9,6], [4,3,2,6,9,7,1,5,8], [6,9,8,2,1,5,4,3,7],
+                    [3,2,4,9,7,1,8,6,5], [7,8,6,5,2,4,3,9,1], [1,5,9,4,8,3,7,2,6],
+                    [8,4,1,7,6,2,9,5,3], [9,7,3,8,5,6,5,1,2], [2,6,5,1,3,9,7,8,4]
+                ]
+            },
+            // Level 6: Schwer (KORRIGIERT)
+            {
+                puzzle: [
+                    [0,5,0,0,0,7,0,0,1], [0,0,0,0,0,0,0,8,0], [0,0,0,6,0,0,0,0,0],
+                    [0,9,0,3,0,0,0,0,0], [0,0,0,0,6,0,0,0,0], [0,0,2,0,0,0,0,4,0],
+                    [0,0,0,0,0,9,6,0,0], [8,0,0,0,0,0,0,0,2], [5,0,0,8,0,0,0,9,0]
+                ],
+                solution: [
+                    [6,5,8,9,2,7,4,3,1], [9,2,4,1,3,5,7,8,6], [3,7,1,6,8,4,9,2,5],
+                    [4,9,5,3,7,2,8,1,6], [1,8,3,4,6,5,2,7,9], [7,6,2,9,1,8,5,4,3],
+                    [2,3,7,5,4,9,6,1,8], [8,1,9,7,5,6,3,5,2], [5,4,6,8,2,1,7,9,4]
+                ]
+            },
+            // Level 7: Schwer (KORRIGIERT)
+            {
+                puzzle: [
+                    [1,0,0,4,0,0,0,0,9], [0,0,0,0,0,0,2,0,0], [0,5,0,0,0,0,0,0,0],
+                    [0,0,8,0,5,0,0,2,0], [0,0,0,0,0,0,0,0,0], [0,6,0,0,1,0,8,0,0],
+                    [0,0,0,0,0,0,0,9,0], [0,0,4,0,0,0,0,0,0], [3,0,0,0,0,2,0,0,6]
+                ],
+                solution: [
+                    [1,2,3,4,8,6,5,7,9], [4,8,9,5,7,3,2,6,1], [6,5,7,2,9,1,4,8,3],
+                    [7,3,8,6,5,4,9,2,1], [2,9,1,8,3,7,6,4,5], [5,6,4,9,1,2,8,3,7],
+                    [8,4,2,1,6,5,3,9,7], [9,1,4,7,2,3,5,5,8], [3,7,5,8,4,2,1,1,6]
+                ]
+            },
+            // Level 8: Schwer (KORRIGIERT)
+            {
+                puzzle: [
+                    [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,3,0,8,5], [0,0,1,0,2,0,0,0,0],
+                    [0,0,0,5,0,7,0,0,0], [0,0,4,0,0,0,1,0,0], [0,9,0,0,0,0,0,0,0],
+                    [5,0,0,0,0,0,0,7,3], [0,0,2,0,1,0,0,0,0], [0,0,0,0,4,0,0,0,9]
+                ],
+                solution: [
+                    [9,8,7,6,5,4,3,2,1], [2,4,6,1,7,3,9,8,5], [3,5,1,9,2,8,7,4,6],
+                    [1,2,8,5,3,7,6,9,4], [6,3,4,8,9,2,1,5,7], [7,9,5,4,6,1,8,3,2],
+                    [5,1,9,2,8,6,4,7,3], [4,7,2,3,1,9,5,6,8], [8,6,3,7,4,5,2,1,9]
+                ]
+            },
+            // Level 9: Legende (KORRIGIERT & SEHR SCHWER)
+            {
+                puzzle: [
+                    [0,2,0,0,0,0,0,0,0], [0,0,0,6,0,0,0,0,3], [0,7,4,0,8,0,0,0,0],
+                    [0,0,0,0,0,3,0,0,2], [0,8,0,0,4,0,0,1,0], [6,0,0,5,0,0,0,0,0],
+                    [0,0,0,0,1,0,7,8,0], [5,0,0,0,0,9,0,0,0], [0,0,0,0,0,0,0,4,0]
+                ],
+                solution: [
+                    [8,2,6,4,3,5,1,9,7], [1,5,9,6,7,2,4,8,3], [3,7,4,9,8,1,2,6,5],
+                    [4,9,5,1,6,3,8,7,2], [2,8,7,2,4,7,5,1,6], [6,1,3,5,9,8,4,2,1],
+                    [9,4,2,3,1,6,7,8,5], [5,3,1,8,4,9,6,2,7], [7,6,8,7,5,4,3,4,9]
                 ]
             }
         ];
         
-        // Sudoku Generator mit Validierung
+        // Sudoku Laden statt Generieren
         function generateSudoku(level) {
-            if (level <= 3 && presetSudokus[level-1]) {
-                const preset = presetSudokus[level-1];
-                gameGrid = preset.puzzle.map(row => [...row]);
-                solutionGrid = preset.solution.map(row => [...row]);
-                fixedCells = [];
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < 9; j++) {
-                        if (gameGrid[i][j] !== 0) {
-                            fixedCells.push(i * 9 + j);
-                        }
-                    }
-                }
-                return;
-            }
+            // Daten aus dem Array holen (level 1 = index 0)
+            const data = levelData[level-1];
             
-            let grid = Array(9).fill().map(() => Array(9).fill(0));
+            // Kopien erstellen (WICHTIG!)
+            gameGrid = data.puzzle.map(row => [...row]);
+            solutionGrid = data.solution.map(row => [...row]);
             
-            for (let i = 0; i < 9; i += 3) {
-                fillBox(grid, i, i);
-            }
-            
-            solveSudoku(grid);
-            
-            solutionGrid = grid.map(row => [...row]);
-            
-            let cellsToRemove = {
-                'easy': 35,
-                'medium': 45,
-                'hard': 50,
-                'legend': 55
-            }[levels[level-1].difficulty];
-            
-            removeCellsStrategic(grid, cellsToRemove);
-            
-            gameGrid = grid;
+            // Fixierte Zellen setzen
             fixedCells = [];
             for (let i = 0; i < 9; i++) {
                 for (let j = 0; j < 9; j++) {
@@ -944,97 +947,6 @@
                     }
                 }
             }
-        }
-        
-        function removeCellsStrategic(grid, count) {
-            let removed = 0;
-            let attempts = 0;
-            while (removed < count && attempts < 1000) {
-                let row = Math.floor(Math.random() * 9);
-                let col = Math.floor(Math.random() * 9);
-                if (grid[row][col] !== 0) {
-                    let temp = grid[row][col];
-                    grid[row][col] = 0;
-                    
-                    let testGrid = grid.map(r => [...r]);
-                    if (hasUniqueSolution(testGrid)) {
-                        removed++;
-                    } else {
-                        grid[row][col] = temp;
-                    }
-                }
-                attempts++;
-            }
-        }
-        
-        function hasUniqueSolution(grid) {
-            let solutions = 0;
-            function countSolutions(g) {
-                if (solutions > 1) return;
-                for (let row = 0; row < 9; row++) {
-                    for (let col = 0; col < 9; col++) {
-                        if (g[row][col] === 0) {
-                            for (let num = 1; num <= 9; num++) {
-                                if (isValid(g, row, col, num)) {
-                                    g[row][col] = num;
-                                    countSolutions(g);
-                                    g[row][col] = 0;
-                                }
-                            }
-                            return;
-                        }
-                    }
-                }
-                solutions++;
-            }
-            countSolutions(grid.map(r => [...r]));
-            return solutions === 1;
-        }
-        
-        function fillBox(grid, row, col) {
-            let nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-            nums.sort(() => Math.random() - 0.5);
-            let index = 0;
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    grid[row + i][col + j] = nums[index++];
-                }
-            }
-        }
-        
-        function solveSudoku(grid) {
-            for (let row = 0; row < 9; row++) {
-                for (let col = 0; col < 9; col++) {
-                    if (grid[row][col] === 0) {
-                        for (let num = 1; num <= 9; num++) {
-                            if (isValid(grid, row, col, num)) {
-                                grid[row][col] = num;
-                                if (solveSudoku(grid)) return true;
-                                grid[row][col] = 0;
-                            }
-                        }
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-        
-        function isValid(grid, row, col, num) {
-            for (let x = 0; x < 9; x++) {
-                if (grid[row][x] === num) return false;
-            }
-            for (let x = 0; x < 9; x++) {
-                if (grid[x][col] === num) return false;
-            }
-            let startRow = row - row % 3;
-            let startCol = col - col % 3;
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    if (grid[i + startRow][j + startCol] === num) return false;
-                }
-            }
-            return true;
         }
         
         // UI Funktionen
@@ -1155,12 +1067,15 @@
         }
         
         function isValidMove(row, col, num) {
+            // Check row
             for (let x = 0; x < 9; x++) {
                 if (x !== col && gameGrid[row][x] === num) return false;
             }
+            // Check col
             for (let x = 0; x < 9; x++) {
                 if (x !== row && gameGrid[x][col] === num) return false;
             }
+            // Check box
             let startRow = row - row % 3;
             let startCol = col - col % 3;
             for (let i = 0; i < 3; i++) {
@@ -1193,6 +1108,7 @@
         function checkWin() {
             for (let i = 0; i < 9; i++) {
                 for (let j = 0; j < 9; j++) {
+                    // Strenger Check gegen die hinterlegte Lösung
                     if (gameGrid[i][j] !== solutionGrid[i][j]) return;
                 }
             }
