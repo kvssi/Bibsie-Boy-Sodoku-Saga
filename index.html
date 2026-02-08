@@ -203,6 +203,32 @@
                 0 0 30px rgba(255,45,85,0.8),
                 inset 0 0 20px rgba(255,255,255,0.3);
         }
+
+        /* INFINITY MODE STYLES */
+        .infinity-btn {
+            background: linear-gradient(45deg, #FFD700, #FF6B9D, #6200EA, #FFD700);
+            background-size: 300% 300%;
+            animation: rainbow 5s ease infinite;
+            border: 3px solid white;
+            display: none; /* Erstmal versteckt */
+            font-size: 1.2rem;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            margin-top: 15px;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .streak-display {
+            color: var(--hot-pink);
+            font-size: 1rem;
+            display: none;
+            margin-left: 10px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
         
         /* Level Select */
         .level-grid {
@@ -683,6 +709,9 @@
             </p>
             
             <button class="btn" onclick="showScreen('levelScreen')">START SAGA</button>
+            <button class="btn infinity-btn" id="infinityBtnTitle" onclick="startInfinityMode()">
+                ∞ INFINITY MODE ∞
+            </button>
         </div>
     </div>
     
@@ -694,11 +723,16 @@
             </div>
         
         <button class="btn" onclick="showScreen('titleScreen')" style="margin-top: 15px; z-index: 20;">ZURÜCK</button>
+        
+        <button class="btn infinity-btn" id="infinityBtnLevel" onclick="startInfinityMode()" style="width: 90%; max-width: 350px;">
+            ∞ EWIGE LIEBE MODUS ∞
+        </button>
     </div>
     
     <div class="screen" id="gameScreen">
         <div class="game-header">
             <span id="levelDisplay">LEVEL 1</span>
+            <span id="streakDisplay" class="streak-display">🔥 STREAK: 0</span>
             <span class="level-title" id="levelName">ROSA ANFANG</span>
             <span id="timer">00:00</span>
         </div>
@@ -795,6 +829,12 @@
         let timerInterval = null;
         let completedLevels = JSON.parse(localStorage.getItem('bibsieCompleted')) || [];
         
+        // Infinity Mode State
+        let infinityUnlocked = localStorage.getItem('bibsieInfinityUnlocked') === 'true';
+        let infinityPuzzles = [];
+        let isInfinityMode = false;
+        let currentStreak = parseInt(localStorage.getItem('bibsieStreak')) || 0;
+        
         // Level Konfiguration
         const levels = [
             { name: "ROSA ANFANG", difficulty: "easy", color: "#FF6B9D" },
@@ -810,7 +850,6 @@
         
         // 9 FEST DEFINIERTE, GEPRÜFTE SUDOKUS
         const levelData = [
-            // Level 1: Einfach
             {
                 puzzle: [
                     [5,3,0,0,7,0,0,0,0], [6,0,0,1,9,5,0,0,0], [0,9,8,0,0,0,0,6,0],
@@ -823,7 +862,6 @@
                     [9,6,1,5,3,7,2,8,4], [2,8,7,4,1,9,6,3,5], [3,4,5,2,8,6,1,7,9]
                 ]
             },
-            // Level 2: Einfach
             {
                 puzzle: [
                     [0,0,0,2,6,0,7,0,1], [6,8,0,0,7,0,0,9,0], [1,9,0,0,0,4,5,0,0],
@@ -836,7 +874,6 @@
                     [5,1,9,3,2,6,8,7,4], [2,4,8,9,5,7,1,3,6], [7,6,3,4,1,8,2,5,9]
                 ]
             },
-            // Level 3: Mittel
             {
                 puzzle: [
                     [1,0,0,4,8,9,0,0,6], [7,3,0,0,0,0,0,4,0], [0,0,0,0,0,1,2,9,5],
@@ -849,7 +886,6 @@
                     [9,1,4,6,3,7,5,8,2], [6,2,5,9,4,8,1,3,7], [8,7,3,5,1,2,9,6,4]
                 ]
             },
-            // Level 4: Mittel
             {
                 puzzle: [
                     [0,2,0,6,0,8,0,0,0], [5,8,0,0,0,9,7,0,0], [0,0,0,0,4,0,0,0,0],
@@ -862,7 +898,6 @@
                     [8,3,6,9,2,4,1,7,5], [4,5,9,8,1,7,2,3,6], [7,1,2,3,5,6,8,4,9]
                 ]
             },
-            // Level 5: Mittel
             {
                 puzzle: [
                     [5,0,0,0,0,0,0,0,6], [0,3,0,0,0,0,0,5,0], [0,0,8,0,0,0,4,0,0],
@@ -875,7 +910,6 @@
                     [8,4,1,7,6,2,9,5,3], [9,7,3,8,5,6,5,1,2], [2,6,5,1,3,9,7,8,4]
                 ]
             },
-            // Level 6: Schwer (KORRIGIERT)
             {
                 puzzle: [
                     [0,5,0,0,0,7,0,0,1], [0,0,0,0,0,0,0,8,0], [0,0,0,6,0,0,0,0,0],
@@ -888,7 +922,6 @@
                     [2,3,7,5,4,9,6,1,8], [8,1,9,7,5,6,3,5,2], [5,4,6,8,2,1,7,9,4]
                 ]
             },
-            // Level 7: Schwer (KORRIGIERT)
             {
                 puzzle: [
                     [1,0,0,4,0,0,0,0,9], [0,0,0,0,0,0,2,0,0], [0,5,0,0,0,0,0,0,0],
@@ -901,7 +934,6 @@
                     [8,4,2,1,6,5,3,9,7], [9,1,4,7,2,3,5,5,8], [3,7,5,8,4,2,1,1,6]
                 ]
             },
-            // Level 8: Schwer (KORRIGIERT)
             {
                 puzzle: [
                     [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,3,0,8,5], [0,0,1,0,2,0,0,0,0],
@@ -914,7 +946,6 @@
                     [5,1,9,2,8,6,4,7,3], [4,7,2,3,1,9,5,6,8], [8,6,3,7,4,5,2,1,9]
                 ]
             },
-            // Level 9: Legende (KORRIGIERT & SEHR SCHWER)
             {
                 puzzle: [
                     [0,2,0,0,0,0,0,0,0], [0,0,0,6,0,0,0,0,3], [0,7,4,0,8,0,0,0,0],
@@ -929,16 +960,74 @@
             }
         ];
         
-        // Sudoku Laden statt Generieren
-        function generateSudoku(level) {
-            // Daten aus dem Array holen (level 1 = index 0)
-            const data = levelData[level-1];
+        // --- INFINITY FUNCTIONS ---
+        
+        // 1. Puzzles laden
+        async function loadInfinityPuzzles() {
+            try {
+                const response = await fetch('puzzles.json');
+                infinityPuzzles = await response.json();
+                console.log("50 Infinity Puzzles geladen!");
+            } catch (e) {
+                console.error("Konnte puzzles.json nicht laden. Läuft das Spiel auf einem Server/GitHub?", e);
+            }
+        }
+
+        // 2. Check Unlock
+        function checkInfinityUnlock() {
+            if (infinityUnlocked) {
+                document.querySelectorAll('.infinity-btn').forEach(btn => {
+                    btn.style.display = 'block'; 
+                    btn.classList.add('btn');
+                });
+                loadInfinityPuzzles(); 
+            }
+        }
+
+        // 3. Start Infinity Mode
+        function startInfinityMode() {
+            if (infinityPuzzles.length === 0) {
+                alert("Lade noch Puzzles... (oder Fehler beim Laden)");
+                loadInfinityPuzzles(); 
+                return;
+            }
+
+            isInfinityMode = true;
+            showScreen('gameScreen');
             
-            // Kopien erstellen (WICHTIG!)
+            // UI Updates für Infinity
+            document.getElementById('levelDisplay').textContent = "∞";
+            document.getElementById('levelName').textContent = "EWIGE LIEBE";
+            document.getElementById('streakDisplay').style.display = 'inline';
+            document.getElementById('streakDisplay').textContent = `🔥 STREAK: ${currentStreak}`;
+            
+            // Zufälliges Puzzle wählen
+            const randomIdx = Math.floor(Math.random() * infinityPuzzles.length);
+            const puzzleData = infinityPuzzles[randomIdx];
+            
+            // Grid setzen
+            gameGrid = puzzleData.puzzle.map(row => [...row]);
+            solutionGrid = puzzleData.solution.map(row => [...row]);
+            
+            // Fixed Cells berechnen
+            fixedCells = [];
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 9; j++) {
+                    if (gameGrid[i][j] !== 0) fixedCells.push(i * 9 + j);
+                }
+            }
+            
+            renderGrid();
+            startTimer();
+        }
+
+        // --- NORMAL GAME FUNCTIONS ---
+        
+        function generateSudoku(level) {
+            const data = levelData[level-1];
             gameGrid = data.puzzle.map(row => [...row]);
             solutionGrid = data.solution.map(row => [...row]);
             
-            // Fixierte Zellen setzen
             fixedCells = [];
             for (let i = 0; i < 9; i++) {
                 for (let j = 0; j < 9; j++) {
@@ -989,6 +1078,9 @@
         }
         
         function startLevel(level) {
+            isInfinityMode = false;
+            document.getElementById('streakDisplay').style.display = 'none';
+            
             currentLevel = level;
             document.getElementById('levelDisplay').textContent = `LEVEL ${level}`;
             document.getElementById('levelName').textContent = levels[level-1].name;
@@ -1067,15 +1159,12 @@
         }
         
         function isValidMove(row, col, num) {
-            // Check row
             for (let x = 0; x < 9; x++) {
                 if (x !== col && gameGrid[row][x] === num) return false;
             }
-            // Check col
             for (let x = 0; x < 9; x++) {
                 if (x !== row && gameGrid[x][col] === num) return false;
             }
-            // Check box
             let startRow = row - row % 3;
             let startCol = col - col % 3;
             for (let i = 0; i < 3; i++) {
@@ -1108,12 +1197,21 @@
         function checkWin() {
             for (let i = 0; i < 9; i++) {
                 for (let j = 0; j < 9; j++) {
-                    // Strenger Check gegen die hinterlegte Lösung
                     if (gameGrid[i][j] !== solutionGrid[i][j]) return;
                 }
             }
             
             clearInterval(timerInterval);
+
+            // --- INFINITY MODE WIN ---
+            if (isInfinityMode) {
+                currentStreak++;
+                localStorage.setItem('bibsieStreak', currentStreak);
+                document.getElementById('streakDisplay').textContent = `🔥 STREAK: ${currentStreak}`;
+                showWin(); 
+                return; 
+            }
+            // ------------------------
             
             if (!completedLevels.includes(currentLevel)) {
                 completedLevels.push(currentLevel);
@@ -1121,6 +1219,12 @@
             }
             
             if (currentLevel === 9) {
+                // UNLOCK INFINITY
+                if (!infinityUnlocked) {
+                    infinityUnlocked = true;
+                    localStorage.setItem('bibsieInfinityUnlocked', 'true');
+                    checkInfinityUnlock(); 
+                }
                 setTimeout(() => showFinal(), 1000);
             } else {
                 setTimeout(() => showWin(), 500);
@@ -1134,8 +1238,11 @@
         
         function nextLevel() {
             document.getElementById('winOverlay').classList.remove('active');
-            if (currentLevel < 9) {
-                startLevel(currentLevel + 1);
+            
+            if (isInfinityMode) {
+                startInfinityMode(); // Nächstes Infinity Level
+            } else if (currentLevel < 9) {
+                startLevel(currentLevel + 1); // Nächstes Story Level
             }
         }
         
@@ -1181,12 +1288,16 @@
         
         function backToLevels() {
             clearInterval(timerInterval);
+            isInfinityMode = false;
+            document.getElementById('streakDisplay').style.display = 'none';
             showScreen('levelScreen');
         }
         
         function resetGame() {
             completedLevels = [];
             localStorage.removeItem('bibsieCompleted');
+            // Infinity behalten wir lieber, oder? Falls Reset alles löschen soll, nimm die Zeile unten dazu:
+            // localStorage.removeItem('bibsieInfinityUnlocked');
             showScreen('titleScreen');
         }
         
@@ -1203,6 +1314,10 @@
         
         // Touch Support verbessern
         document.addEventListener('touchstart', function() {}, {passive: true});
+
+        // INIT: Check ob Infinity schon da ist
+        checkInfinityUnlock();
+
     </script>
 </body>
 </html>
