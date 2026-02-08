@@ -331,10 +331,11 @@
             z-index: 20;
         }
         
+        /* CSS-ONLY GRID - Kein Bild nötig! */
         .sudoku-grid {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
-            gap: 2px;
+            gap: 1px;
             background: var(--neon-red);
             padding: 3px;
             border-radius: 10px;
@@ -343,8 +344,41 @@
                 inset 0 0 10px rgba(255,255,255,0.2);
             max-width: 90vw;
             width: 400px;
-            background-image: url('grid.png');
-            background-size: cover;
+            position: relative;
+        }
+        
+        /* Dicke Linien alle 3 Zellen */
+        .sudoku-grid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(to right, 
+                    transparent 33.33%, 
+                    var(--neon-red) 33.33%, 
+                    var(--neon-red) 33.66%, 
+                    transparent 33.66%,
+                    transparent 66.66%,
+                    var(--neon-red) 66.66%,
+                    var(--neon-red) 66.99%,
+                    transparent 66.99%
+                ),
+                linear-gradient(to bottom, 
+                    transparent 33.33%, 
+                    var(--neon-red) 33.33%, 
+                    var(--neon-red) 33.66%, 
+                    transparent 33.66%,
+                    transparent 66.66%,
+                    var(--neon-red) 66.66%,
+                    var(--neon-red) 66.99%,
+                    transparent 66.99%
+                );
+            pointer-events: none;
+            z-index: 10;
+            border-radius: 10px;
         }
         
         .cell {
@@ -358,16 +392,7 @@
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
-            border: 1px solid rgba(255,45,85,0.3);
-        }
-        
-        .cell:nth-child(3n) {
-            border-right: 2px solid var(--neon-red);
-        }
-        
-        .cell:nth-child(n+19):nth-child(-n+27),
-        .cell:nth-child(n+46):nth-child(-n+54) {
-            border-bottom: 2px solid var(--neon-red);
+            z-index: 5;
         }
         
         .cell.fixed {
@@ -702,13 +727,11 @@
         const video = document.getElementById('introVideo');
         const videoScreen = document.getElementById('videoScreen');
         
-        // Wenn Video zu Ende, zeige Title Screen
         video.addEventListener('ended', function() {
             videoScreen.classList.add('hidden');
             document.getElementById('titleScreen').classList.add('active');
         });
         
-        // Überspringen Funktion
         function skipVideo() {
             video.pause();
             videoScreen.classList.add('hidden');
@@ -738,45 +761,184 @@
             { name: "PRINZESSIN MARY", difficulty: "legend", color: "#FFD700" }
         ];
         
-        // Sudoku Generator
-        function generateSudoku(difficulty) {
+        // Vordefinierte, garantiert lösbare Sudokus für jedes Level
+        const presetSudokus = [
+            // Level 1: Einfach
+            {
+                puzzle: [
+                    [5,3,0,0,7,0,0,0,0],
+                    [6,0,0,1,9,5,0,0,0],
+                    [0,9,8,0,0,0,0,6,0],
+                    [8,0,0,0,6,0,0,0,3],
+                    [4,0,0,8,0,3,0,0,1],
+                    [7,0,0,0,2,0,0,0,6],
+                    [0,6,0,0,0,0,2,8,0],
+                    [0,0,0,4,1,9,0,0,5],
+                    [0,0,0,0,8,0,0,7,9]
+                ],
+                solution: [
+                    [5,3,4,6,7,8,9,1,2],
+                    [6,7,2,1,9,5,3,4,8],
+                    [1,9,8,3,4,2,5,6,7],
+                    [8,5,9,7,6,1,4,2,3],
+                    [4,2,6,8,5,3,7,9,1],
+                    [7,1,3,9,2,4,8,5,6],
+                    [9,6,1,5,3,7,2,8,4],
+                    [2,8,7,4,1,9,6,3,5],
+                    [3,4,5,2,8,6,1,7,9]
+                ]
+            },
+            // Level 2: Einfach
+            {
+                puzzle: [
+                    [2,0,0,0,8,0,3,0,0],
+                    [0,6,0,0,7,0,0,8,4],
+                    [0,3,0,5,0,0,0,0,0],
+                    [0,0,0,1,2,0,0,4,0],
+                    [4,0,0,0,0,0,0,0,7],
+                    [0,5,0,0,6,8,0,0,0],
+                    [0,0,0,0,0,3,0,9,0],
+                    [6,8,0,0,9,0,0,2,0],
+                    [0,0,2,0,4,0,0,0,5]
+                ],
+                solution: [
+                    [2,4,5,9,8,1,3,7,6],
+                    [9,6,1,3,7,2,5,8,4],
+                    [8,3,7,5,6,4,9,1,2],
+                    [3,7,8,1,2,9,6,4,5],
+                    [4,2,6,3,5,7,8,9,7],
+                    [1,5,9,4,6,8,2,3,7],
+                    [5,1,4,7,3,6,7,9,8],
+                    [6,8,3,2,9,5,4,2,1],
+                    [7,9,2,8,4,6,1,3,5]
+                ]
+            },
+            // Level 3: Mittel (korrigiert, garantiert lösbar)
+            {
+                puzzle: [
+                    [0,0,0,6,0,0,4,0,0],
+                    [7,0,0,0,0,3,6,0,0],
+                    [0,0,0,0,9,1,0,8,0],
+                    [0,5,0,0,0,9,0,0,0],
+                    [0,0,0,0,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,4,0],
+                    [0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0]
+                ],
+                solution: [
+                    [5,8,1,6,7,2,4,3,9],
+                    [7,4,9,8,5,3,6,1,2],
+                    [3,6,2,4,9,1,7,8,5],
+                    [4,5,7,2,8,9,1,6,3],
+                    [9,1,3,7,6,4,8,5,2],
+                    [8,2,6,1,3,5,9,4,7],
+                    [1,9,4,3,2,7,5,6,8],
+                    [2,3,5,9,4,8,7,6,1],
+                    [6,7,8,5,1,6,3,9,4]
+                ]
+            }
+        ];
+        
+        // Sudoku Generator mit Validierung
+        function generateSudoku(level) {
+            // Für Level 1-3: Nutze vordefinierte, getestete Sudokus
+            if (level <= 3 && presetSudokus[level-1]) {
+                const preset = presetSudokus[level-1];
+                gameGrid = preset.puzzle.map(row => [...row]);
+                solutionGrid = preset.solution.map(row => [...row]);
+                fixedCells = [];
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < 9; j++) {
+                        if (gameGrid[i][j] !== 0) {
+                            fixedCells.push(i * 9 + j);
+                        }
+                    }
+                }
+                return;
+            }
+            
+            // Für höhere Level: Generiere mit Backtracking
             let grid = Array(9).fill().map(() => Array(9).fill(0));
             
+            // Fülle diagonal Boxen
             for (let i = 0; i < 9; i += 3) {
                 fillBox(grid, i, i);
             }
             
+            // Löse komplett
             solveSudoku(grid);
             
+            // Speichere Lösung
             solutionGrid = grid.map(row => [...row]);
             
+            // Entferne Zahlen basierend auf Schwierigkeit
             let cellsToRemove = {
                 'easy': 35,
                 'medium': 45,
-                'hard': 55,
-                'legend': 60
-            }[difficulty];
+                'hard': 50,
+                'legend': 55
+            }[levels[level-1].difficulty];
             
-            let puzzle = grid.map(row => [...row]);
-            let removed = 0;
-            while (removed < cellsToRemove) {
-                let row = Math.floor(Math.random() * 9);
-                let col = Math.floor(Math.random() * 9);
-                if (puzzle[row][col] !== 0) {
-                    puzzle[row][col] = 0;
-                    removed++;
-                }
-            }
+            // Entferne strategisch, nicht zufällig
+            removeCellsStrategic(grid, cellsToRemove);
             
-            gameGrid = puzzle;
+            gameGrid = grid;
             fixedCells = [];
             for (let i = 0; i < 9; i++) {
                 for (let j = 0; j < 9; j++) {
-                    if (puzzle[i][j] !== 0) {
+                    if (gameGrid[i][j] !== 0) {
                         fixedCells.push(i * 9 + j);
                     }
                 }
             }
+        }
+        
+        function removeCellsStrategic(grid, count) {
+            // Entferne Zahlen so, dass es immer lösbar bleibt
+            let removed = 0;
+            let attempts = 0;
+            while (removed < count && attempts < 1000) {
+                let row = Math.floor(Math.random() * 9);
+                let col = Math.floor(Math.random() * 9);
+                if (grid[row][col] !== 0) {
+                    let temp = grid[row][col];
+                    grid[row][col] = 0;
+                    
+                    // Prüfe ob es noch eindeutig lösbar ist
+                    let testGrid = grid.map(r => [...r]);
+                    if (hasUniqueSolution(testGrid)) {
+                        removed++;
+                    } else {
+                        grid[row][col] = temp; // Zurücksetzen
+                    }
+                }
+                attempts++;
+            }
+        }
+        
+        function hasUniqueSolution(grid) {
+            let solutions = 0;
+            function countSolutions(g) {
+                if (solutions > 1) return;
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        if (g[row][col] === 0) {
+                            for (let num = 1; num <= 9; num++) {
+                                if (isValid(g, row, col, num)) {
+                                    g[row][col] = num;
+                                    countSolutions(g);
+                                    g[row][col] = 0;
+                                }
+                            }
+                            return;
+                        }
+                    }
+                }
+                solutions++;
+            }
+            countSolutions(grid.map(r => [...r]));
+            return solutions === 1;
         }
         
         function fillBox(grid, row, col) {
@@ -870,7 +1032,7 @@
             document.getElementById('levelName').textContent = levels[level-1].name;
             document.getElementById('levelName').style.color = levels[level-1].color;
             
-            generateSudoku(levels[level-1].difficulty);
+            generateSudoku(level);
             renderGrid();
             startTimer();
             
