@@ -1,1379 +1,1578 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bibsie Boys Sodoku Saga</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Noto+Sans+JP:wght@700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-        
-        :root {
-            --neon-red: #FF2D55;
-            --hot-pink: #FF6B9D;
-            --deep-purple: #2D0A1F;
-            --gold: #FFD700;
-            --grid-bg: #2D0A1F;
-            --cell-bg: #1a0512;
-            --fixed-bg: #FF2D55;
-            --line-color: #ffffff;
-        }
-        
-        html, body {
-            font-family: 'Bangers', cursive;
-            background: var(--deep-purple);
-            min-height: 100vh;
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-            position: fixed;
-        }
-        
-        /* Video Intro Screen */
-        .video-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            flex-direction: column;
-        }
-        
-        .video-screen.hidden {
-            display: none;
-        }
-        
-        #introVideo {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            max-height: 100vh;
-        }
-        
-        .skip-btn {
-            position: absolute;
-            bottom: 30px;
-            right: 20px;
-            background: rgba(255,45,85,0.9);
-            border: 2px solid white;
-            color: white;
-            font-family: 'Bangers', cursive;
-            font-size: 1rem;
-            padding: 8px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            z-index: 1001;
-            transition: all 0.3s;
-        }
-        
-        .skip-btn:hover, .skip-btn:active {
-            background: var(--neon-red);
-            transform: scale(1.05);
-        }
-        
-        /* Wolken Hintergrund */
-        .clouds-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('clouds.png') center/cover;
-            opacity: 0.8;
-            z-index: 0;
-            animation: cloudMove 30s infinite alternate;
-        }
-        
-        @keyframes cloudMove {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
-        
-        /* Screens */
-        .screen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            z-index: 10;
-            padding: 10px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .screen.active {
-            display: flex;
-        }
-        
-        /* Title Screen */
-        .title-screen-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('poster.png') center/cover;
-            z-index: -1;
-        }
-        
-        .title-overlay {
-            background: rgba(45, 10, 31, 0.7);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        
-        .title-container {
-            text-align: center;
-            z-index: 20;
-            margin-top: 50vh;
-            width: 100%;
-            padding: 0 20px;
-        }
-        
-        .main-title {
-            font-size: clamp(2rem, 8vw, 3.5rem);
-            color: white;
-            text-shadow: 
-                3px 3px 0px var(--neon-red),
-                6px 6px 15px rgba(255,45,85,0.8);
-            letter-spacing: 2px;
-            line-height: 1;
-            margin-bottom: 10px;
-            animation: titlePulse 2s infinite;
-        }
-        
-        @keyframes titlePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
-        
-        .sub-title {
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: clamp(0.9rem, 3vw, 1.3rem);
-            color: var(--hot-pink);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            margin-bottom: 20px;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, var(--neon-red) 0%, var(--hot-pink) 100%);
-            border: 3px solid white;
-            color: white;
-            font-family: 'Bangers', cursive;
-            font-size: clamp(1rem, 4vw, 1.5rem);
-            padding: 12px 30px;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 
-                0 0 15px rgba(255,45,85,0.6),
-                inset 0 0 15px rgba(255,255,255,0.2);
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 8px;
-            position: relative;
-            overflow: hidden;
-            min-height: 44px;
-        }
-        
-        .btn:hover, .btn:active {
-            transform: scale(1.05);
-            box-shadow: 
-                0 0 30px rgba(255,45,85,0.8),
-                inset 0 0 20px rgba(255,255,255,0.3);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bibsie Boys Sodoku Saga</title>
 
-        /* INFINITY BUTTON STYLE */
-        .infinity-btn-style {
-            background: linear-gradient(45deg, #FFD700, #FF6B9D, #6200EA, #FFD700);
-            background-size: 300% 300%;
-            animation: rainbow 5s ease infinite;
-            border: 3px solid white;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-        }
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Noto+Sans+JP:wght@700&display=swap');
 
-        @keyframes rainbow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
 
-        .streak-display {
-            color: var(--hot-pink);
-            font-size: 1rem;
-            display: none;
-            margin-left: 10px;
-            text-shadow: 0 0 5px rgba(255,255,255,0.5);
-        }
-        
-        /* Level Select */
-        .level-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            max-width: 350px;
-            width: 100%;
-            margin: 15px 0;
-            z-index: 20;
-        }
-        
-        .level-btn {
-            aspect-ratio: 1;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            position: relative;
-            overflow: hidden;
-            border: 2px solid;
-            transition: all 0.3s;
-            background: rgba(45, 10, 31, 0.8);
-            backdrop-filter: blur(10px);
-            min-height: 44px;
-        }
-        
-        .level-btn.locked {
-            border-color: #666;
-            color: #666;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        
-        .level-btn.available {
-            border-color: var(--neon-red);
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255,45,85,0.5);
-            animation: levelPulse 2s infinite;
-        }
-        
-        .level-btn.completed {
-            border-color: #00C853;
-            color: white;
-            cursor: pointer;
-            background: rgba(0, 200, 83, 0.3);
-        }
-        
-        .level-btn.completed::after {
-            content: '💖';
-            position: absolute;
-            top: 3px;
-            right: 3px;
-            font-size: 0.8rem;
-            animation: heartFloat 2s infinite;
-        }
-        
-        @keyframes levelPulse {
-            0%, 100% { box-shadow: 0 0 8px rgba(255,45,85,0.5); }
-            50% { box-shadow: 0 0 20px rgba(255,45,85,0.8); }
-        }
-        
-        @keyframes heartFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-        
-        .level-btn.final {
-            background: linear-gradient(135deg, var(--gold) 0%, #FFA000 100%);
-            border-color: white;
-            color: var(--deep-purple);
-            grid-column: span 3;
-            aspect-ratio: 3/1;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-        
-        /* Game Screen */
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            max-width: 100%;
-            margin-bottom: 8px;
-            color: white;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            z-index: 20;
-            padding: 0 5px;
-        }
-        
-        .level-title {
-            font-size: clamp(1rem, 4vw, 1.3rem);
-            color: var(--gold);
-            text-shadow: 0 0 10px rgba(255,215,0,0.5);
-        }
-        
-        /* HEADER über dem Spielfeld */
-        .game-header-img {
-            width: 100%;
-            max-width: 100%;
-            height: auto;
-            max-height: 15vh;
-            margin-bottom: 10px;
-            z-index: 20;
-            filter: drop-shadow(0 5px 15px rgba(255,45,85,0.5));
-            object-fit: contain;
-        }
-        
-        /* Sudoku Container */
-        .sudoku-container {
-            position: relative;
-            background: rgba(255,255,255,0.1);
-            padding: 8px;
-            border-radius: 12px;
-            box-shadow: 
-                0 0 30px rgba(255,45,85,0.4),
-                inset 0 0 20px rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            z-index: 20;
-            border: 2px solid rgba(255,45,85,0.5);
-            width: 100%;
-            max-width: 100%;
-        }
-        
-        /* RESPONSIVES GRID */
-        .sudoku-grid {
-            display: grid;
-            grid-template-columns: repeat(9, 1fr);
-            gap: 1px;
-            background: var(--line-color);
-            padding: 3px;
-            border-radius: 8px;
-            box-shadow: 
-                0 0 20px rgba(255,45,85,0.6),
-                0 0 40px rgba(255,45,85,0.3);
-            width: 100%;
-            max-width: 100%;
-            position: relative;
-        }
-        
-        /* Dicke 3x3 Linien */
-        .sudoku-grid::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: transparent;
-            border: 3px solid var(--line-color);
-            border-radius: 8px;
-            pointer-events: none;
-            z-index: 10;
-            box-shadow: 
-                inset 33.33% 0 0 0 var(--line-color),
-                inset 66.66% 0 0 0 var(--line-color),
-                inset 0 33.33% 0 0 var(--line-color),
-                inset 0 66.66% 0 0 var(--line-color);
-        }
-        
-        .cell {
-            aspect-ratio: 1;
-            background: var(--cell-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: clamp(1.1rem, 4.5vw, 1.6rem);
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            min-height: 30px;
-        }
-        
-        /* Dicke Linien alle 3 Zellen */
-        .cell:nth-child(3n) {
-            border-right: 2px solid var(--line-color);
-        }
-        
-        .cell:nth-child(n+19):nth-child(-n+27),
-        .cell:nth-child(n+46):nth-child(-n+54) {
-            border-bottom: 2px solid var(--line-color);
-        }
-        
-        /* Feste Zahlen - Rosa Hintergrund */
-        .cell.fixed {
-            background: var(--fixed-bg);
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-        
-        .cell.selected {
-            background: rgba(255,215,0,0.4);
-            box-shadow: inset 0 0 15px rgba(255,215,0,0.8);
-            animation: cellPulse 1s infinite;
-        }
-        
-        .cell.error {
-            background: rgba(255,0,0,0.5);
-            animation: shake 0.5s;
-            color: #ffcccc;
-        }
-        
-        @keyframes cellPulse {
-            0%, 100% { box-shadow: inset 0 0 10px rgba(255,215,0,0.5); }
-            50% { box-shadow: inset 0 0 25px rgba(255,215,0,1); }
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-3px); }
-            75% { transform: translateX(3px); }
-        }
-        
-        .number-pad {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-top: 15px;
-            width: 100%;
-            max-width: 100%;
-            z-index: 20;
-        }
-        
-        .num-btn {
-            aspect-ratio: 1;
-            border-radius: 12px;
-            border: 2px solid var(--neon-red);
-            background: rgba(255,45,85,0.3);
-            color: white;
-            font-family: 'Bangers', cursive;
-            font-size: clamp(1.2rem, 5vw, 1.5rem);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-            font-weight: bold;
-            min-height: 44px;
-            min-width: 44px;
-        }
-        
-        .num-btn:hover, .num-btn:active {
-            background: var(--neon-red);
-            transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(255,45,85,0.8);
-        }
-        
-        .num-btn.action {
-            background: rgba(255,255,255,0.2);
-            border-color: white;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
-        }
-        
-        /* Win Animation */
-        .win-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            flex-direction: column;
-            padding: 20px;
-        }
-        
-        .win-overlay.active {
-            display: flex;
-            animation: fadeIn 0.5s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .heart-explosion {
-            font-size: clamp(4rem, 15vw, 6rem);
-            animation: heartExplode 2s ease-out;
-            filter: drop-shadow(0 0 30px rgba(255,107,157,1));
-        }
-        
-        @keyframes heartExplode {
-            0% { transform: scale(0) rotate(0deg); opacity: 0; }
-            50% { transform: scale(1.5) rotate(180deg); }
-            100% { transform: scale(1) rotate(360deg); opacity: 1; }
-        }
-        
-        .win-text {
-            font-size: clamp(1.8rem, 7vw, 2.2rem);
-            color: white;
-            text-align: center;
-            margin: 15px;
-            text-shadow: 
-                0 0 15px var(--hot-pink),
-                0 0 30px var(--neon-red);
-            animation: textGlow 2s infinite;
-        }
-        
-        @keyframes textGlow {
-            0%, 100% { text-shadow: 0 0 15px var(--hot-pink), 0 0 30px var(--neon-red); }
-            50% { text-shadow: 0 0 30px var(--hot-pink), 0 0 60px var(--neon-red); }
-        }
-        
-        .win-subtext {
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: clamp(1rem, 4vw, 1.2rem);
-            color: var(--hot-pink);
-            margin-bottom: 15px;
-        }
-        
-        /* Final Screen */
-        .final-container {
-            text-align: center;
-            z-index: 20;
-            padding: 20px;
-        }
-        
-        .princess-emoji {
-            font-size: clamp(3rem, 12vw, 5rem);
-            animation: princessFloat 3s infinite ease-in-out;
-            filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));
-        }
-        
-        @keyframes princessFloat {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-15px) rotate(5deg); }
-        }
-        
-        .love-connection {
-            font-size: clamp(2rem, 8vw, 3rem);
-            margin: 15px;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-        
-        .credits-box {
-            background: rgba(255,215,0,0.2);
-            border: 3px solid var(--gold);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .credits-box h2 {
-            font-size: clamp(1.3rem, 5vw, 1.8rem);
-            color: var(--gold);
-            margin-bottom: 10px;
-            text-shadow: 0 0 15px rgba(255,215,0,0.5);
-        }
-        
-        .credits-box p {
-            color: white;
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: clamp(0.8rem, 3vw, 1rem);
-            line-height: 1.5;
-        }
-        
-        /* Particles */
-        .particle {
-            position: fixed;
-            pointer-events: none;
-            z-index: 50;
-        }
-        
-        .heart-particle {
-            color: var(--hot-pink);
-            font-size: clamp(1.2rem, 4vw, 1.8rem);
-            animation: particleFloat 3s ease-out forwards;
-        }
-        
-        @keyframes particleFloat {
-            0% { 
-                transform: translateY(0) scale(1); 
-                opacity: 1; 
-            }
-            100% { 
-                transform: translateY(-100vh) scale(0.5); 
-                opacity: 0; 
-            }
-        }
-        
-        /* Landscape Mode für Handys */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .screen {
-                justify-content: center;
-                padding: 5px;
-            }
-            
-            .game-header-img {
-                max-height: 12vh;
-                margin-bottom: 5px;
-            }
-            
-            .sudoku-container {
-                padding: 5px;
-            }
-            
-            .cell {
-                font-size: clamp(0.9rem, 3.5vw, 1.2rem);
-            }
-            
-            .number-pad {
-                margin-top: 8px;
-                gap: 5px;
-            }
-            
-            .num-btn {
-                font-size: clamp(0.9rem, 3.5vw, 1.1rem);
-            }
-        }
-        
-        /* Kleine Handys */
-        @media (max-width: 360px) {
-            .cell {
-                font-size: 1rem;
-            }
-            
-            .num-btn {
-                font-size: 1.1rem;
-            }
-        }
-        
-        /* Tablets */
-        @media (min-width: 768px) {
-            .sudoku-grid {
-                max-width: 500px;
-            }
-            
-            .cell {
-                font-size: 1.8rem;
-            }
-            
-            .num-btn {
-                font-size: 1.6rem;
-            }
-        }
-    </style>
+    :root {
+      --neon-red: #FF2D55;
+      --hot-pink: #FF6B9D;
+      --deep-purple: #2D0A1F;
+      --gold: #FFD700;
+      --grid-bg: #2D0A1F;
+      --cell-bg: #1a0512;
+      --fixed-bg: #FF2D55;
+      --line-color: #ffffff;
+    }
+
+    html, body {
+      font-family: 'Bangers', cursive;
+      background: var(--deep-purple);
+      min-height: 100vh;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+    }
+
+    /* Video Intro Screen */
+    .video-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      flex-direction: column;
+    }
+
+    .video-screen.hidden {
+      display: none;
+    }
+
+    #introVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      max-height: 100vh;
+    }
+
+    .skip-btn {
+      position: absolute;
+      bottom: 30px;
+      right: 20px;
+      background: rgba(255,45,85,0.9);
+      border: 2px solid white;
+      color: white;
+      font-family: 'Bangers', cursive;
+      font-size: 1rem;
+      padding: 8px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      z-index: 1001;
+      transition: all 0.3s;
+    }
+
+    .skip-btn:hover, .skip-btn:active {
+      background: var(--neon-red);
+      transform: scale(1.05);
+    }
+
+    /* Wolken Hintergrund */
+    .clouds-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('clouds.png') center/cover;
+      opacity: 0.8;
+      z-index: 0;
+      animation: cloudMove 30s infinite alternate;
+    }
+
+    @keyframes cloudMove {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    /* Screens */
+    .screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      z-index: 10;
+      padding: 10px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* Title Screen */
+    .title-screen-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('poster.png') center/cover;
+      z-index: -1;
+    }
+
+    .title-overlay {
+      background: rgba(45, 10, 31, 0.7);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .title-container {
+      text-align: center;
+      z-index: 20;
+      margin-top: 50vh;
+      width: 100%;
+      padding: 0 20px;
+    }
+
+    .main-title {
+      font-size: clamp(2rem, 8vw, 3.5rem);
+      color: white;
+      text-shadow:
+        3px 3px 0px var(--neon-red),
+        6px 6px 15px rgba(255,45,85,0.8);
+      letter-spacing: 2px;
+      line-height: 1;
+      margin-bottom: 10px;
+      animation: titlePulse 2s infinite;
+    }
+
+    @keyframes titlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .sub-title {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: clamp(0.9rem, 3vw, 1.3rem);
+      color: var(--hot-pink);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--neon-red) 0%, var(--hot-pink) 100%);
+      border: 3px solid white;
+      color: white;
+      font-family: 'Bangers', cursive;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      padding: 12px 30px;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow:
+        0 0 15px rgba(255,45,85,0.6),
+        inset 0 0 15px rgba(255,255,255,0.2);
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 8px;
+      position: relative;
+      overflow: hidden;
+      min-height: 44px;
+    }
+
+    .btn:hover, .btn:active {
+      transform: scale(1.05);
+      box-shadow:
+        0 0 30px rgba(255,45,85,0.8),
+        inset 0 0 20px rgba(255,255,255,0.3);
+    }
+
+    /* INFINITY BUTTON STYLE */
+    .infinity-btn-style {
+      background: linear-gradient(45deg, #FFD700, #FF6B9D, #6200EA, #FFD700);
+      background-size: 300% 300%;
+      animation: rainbow 5s ease infinite;
+      border: 3px solid white;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+
+    @keyframes rainbow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .streak-display {
+      color: var(--hot-pink);
+      font-size: 1rem;
+      display: none;
+      margin-left: 10px;
+      text-shadow: 0 0 5px rgba(255,255,255,0.5);
+    }
+
+    /* Level Select */
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 350px;
+      width: 100%;
+      margin: 15px 0;
+      z-index: 20;
+    }
+
+    .level-btn {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid;
+      transition: all 0.3s;
+      background: rgba(45, 10, 31, 0.8);
+      backdrop-filter: blur(10px);
+      min-height: 44px;
+    }
+
+    .level-btn.locked {
+      border-color: #666;
+      color: #666;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .level-btn.available {
+      border-color: var(--neon-red);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255,45,85,0.5);
+      animation: levelPulse 2s infinite;
+    }
+
+    .level-btn.completed {
+      border-color: #00C853;
+      color: white;
+      cursor: pointer;
+      background: rgba(0, 200, 83, 0.3);
+    }
+
+    .level-btn.completed::after {
+      content: '💖';
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      font-size: 0.8rem;
+      animation: heartFloat 2s infinite;
+    }
+
+    @keyframes levelPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(255,45,85,0.5); }
+      50% { box-shadow: 0 0 20px rgba(255,45,85,0.8); }
+    }
+
+    @keyframes heartFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .level-btn.final {
+      background: linear-gradient(135deg, var(--gold) 0%, #FFA000 100%);
+      border-color: white;
+      color: var(--deep-purple);
+      grid-column: span 3;
+      aspect-ratio: 3/1;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    /* Game Screen */
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 100%;
+      margin-bottom: 8px;
+      color: white;
+      font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      z-index: 20;
+      padding: 0 5px;
+    }
+
+    .level-title {
+      font-size: clamp(1rem, 4vw, 1.3rem);
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    }
+
+    /* HEADER über dem Spielfeld */
+    .game-header-img {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      max-height: 15vh;
+      margin-bottom: 10px;
+      z-index: 20;
+      filter: drop-shadow(0 5px 15px rgba(255,45,85,0.5));
+      object-fit: contain;
+    }
+
+    /* Sudoku Container */
+    .sudoku-container {
+      position: relative;
+      background: rgba(255,255,255,0.1);
+      padding: 8px;
+      border-radius: 12px;
+      box-shadow:
+        0 0 30px rgba(255,45,85,0.4),
+        inset 0 0 20px rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      z-index: 20;
+      border: 2px solid rgba(255,45,85,0.5);
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* RESPONSIVES GRID */
+    .sudoku-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 1px;
+      background: var(--line-color);
+      padding: 3px;
+      border-radius: 8px;
+      box-shadow:
+        0 0 20px rgba(255,45,85,0.6),
+        0 0 40px rgba(255,45,85,0.3);
+      width: 100%;
+      max-width: 100%;
+      position: relative;
+    }
+
+    /* Dicke 3x3 Linien */
+    .sudoku-grid::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: transparent;
+      border: 3px solid var(--line-color);
+      border-radius: 8px;
+      pointer-events: none;
+      z-index: 10;
+      box-shadow:
+        inset 33.33% 0 0 0 var(--line-color),
+        inset 66.66% 0 0 0 var(--line-color),
+        inset 0 33.33% 0 0 var(--line-color),
+        inset 0 66.66% 0 0 var(--line-color);
+    }
+
+    .cell {
+      aspect-ratio: 1;
+      background: var(--cell-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+      min-height: 30px;
+    }
+
+    /* Dicke Linien alle 3 Zellen */
+    .cell:nth-child(3n) {
+      border-right: 2px solid var(--line-color);
+    }
+
+    .cell:nth-child(n+19):nth-child(-n+27),
+    .cell:nth-child(n+46):nth-child(-n+54) {
+      border-bottom: 2px solid var(--line-color);
+    }
+
+    /* Feste Zahlen */
+    .cell.fixed {
+      background: var(--fixed-bg);
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .cell.selected {
+      background: rgba(255,215,0,0.4);
+      box-shadow: inset 0 0 15px rgba(255,215,0,0.8);
+      animation: cellPulse 1s infinite;
+    }
+
+    .cell.error {
+      background: rgba(255,0,0,0.5);
+      animation: shake 0.5s;
+      color: #ffcccc;
+    }
+
+    @keyframes cellPulse {
+      0%, 100% { box-shadow: inset 0 0 10px rgba(255,215,0,0.5); }
+      50% { box-shadow: inset 0 0 25px rgba(255,215,0,1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
+    }
+
+    .number-pad {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+      width: 100%;
+      max-width: 100%;
+      z-index: 20;
+    }
+
+    .num-btn {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      border: 2px solid var(--neon-red);
+      background: rgba(255,45,85,0.3);
+      color: white;
+      font-family: 'Bangers', cursive;
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+      font-weight: bold;
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    .num-btn:hover, .num-btn:active {
+      background: var(--neon-red);
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255,45,85,0.8);
+    }
+
+    .num-btn.action {
+      background: rgba(255,255,255,0.2);
+      border-color: white;
+      font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+    }
+
+    /* Win Animation */
+    .win-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .win-overlay.active {
+      display: flex;
+      animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .heart-explosion {
+      font-size: clamp(4rem, 15vw, 6rem);
+      animation: heartExplode 2s ease-out;
+      filter: drop-shadow(0 0 30px rgba(255,107,157,1));
+    }
+
+    @keyframes heartExplode {
+      0% { transform: scale(0) rotate(0deg); opacity: 0; }
+      50% { transform: scale(1.5) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); opacity: 1; }
+    }
+
+    .win-text {
+      font-size: clamp(1.8rem, 7vw, 2.2rem);
+      color: white;
+      text-align: center;
+      margin: 15px;
+      text-shadow:
+        0 0 15px var(--hot-pink),
+        0 0 30px var(--neon-red);
+      animation: textGlow 2s infinite;
+    }
+
+    @keyframes textGlow {
+      0%, 100% { text-shadow: 0 0 15px var(--hot-pink), 0 0 30px var(--neon-red); }
+      50% { text-shadow: 0 0 30px var(--hot-pink), 0 0 60px var(--neon-red); }
+    }
+
+    .win-subtext {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      color: var(--hot-pink);
+      margin-bottom: 15px;
+    }
+
+    /* Final Screen */
+    .final-container {
+      text-align: center;
+      z-index: 20;
+      padding: 20px;
+    }
+
+    .princess-emoji {
+      font-size: clamp(3rem, 12vw, 5rem);
+      animation: princessFloat 3s infinite ease-in-out;
+      filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));
+    }
+
+    @keyframes princessFloat {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+    }
+
+    .love-connection {
+      font-size: clamp(2rem, 8vw, 3rem);
+      margin: 15px;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    .credits-box {
+      background: rgba(255,215,0,0.2);
+      border: 3px solid var(--gold);
+      border-radius: 15px;
+      padding: 20px;
+      margin: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    .credits-box h2 {
+      font-size: clamp(1.3rem, 5vw, 1.8rem);
+      color: var(--gold);
+      margin-bottom: 10px;
+      text-shadow: 0 0 15px rgba(255,215,0,0.5);
+    }
+
+    .credits-box p {
+      color: white;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: clamp(0.8rem, 3vw, 1rem);
+      line-height: 1.5;
+    }
+
+    /* Particles */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .heart-particle {
+      color: var(--hot-pink);
+      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      animation: particleFloat 3s ease-out forwards;
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    /* Difficulty Overlay */
+    .difficulty-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+      padding: 20px;
+    }
+
+    .difficulty-overlay.active {
+      display: flex;
+    }
+
+    .difficulty-card {
+      width: min(420px, 95vw);
+      background: rgba(45,10,31,0.95);
+      border: 3px solid white;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(255,45,85,0.6);
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .difficulty-card h3 {
+      color: white;
+      font-size: 2rem;
+      margin-bottom: 6px;
+      text-shadow: 3px 3px 0px var(--neon-red);
+    }
+
+    .difficulty-card p {
+      color: var(--hot-pink);
+      font-family: 'Noto Sans JP', sans-serif;
+      margin-bottom: 14px;
+    }
+
+    .difficulty-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .diff-btn {
+      border-radius: 14px;
+      border: 2px solid white;
+      padding: 14px 10px;
+      font-family: 'Bangers', cursive;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: white;
+      background: rgba(255,45,85,0.35);
+      transition: transform 0.15s;
+      min-height: 44px;
+    }
+
+    .diff-btn:active {
+      transform: scale(1.05);
+    }
+
+    .diff-btn.random {
+      grid-column: span 2;
+      background: linear-gradient(45deg, #FFD700, #FF6B9D, #6200EA, #FFD700);
+      background-size: 300% 300%;
+      animation: rainbow 5s ease infinite;
+    }
+
+    /* Landscape Mode für Handys */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .screen {
+        justify-content: center;
+        padding: 5px;
+      }
+
+      .game-header-img {
+        max-height: 12vh;
+        margin-bottom: 5px;
+      }
+
+      .sudoku-container {
+        padding: 5px;
+      }
+
+      .cell {
+        font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+      }
+
+      .number-pad {
+        margin-top: 8px;
+        gap: 5px;
+      }
+
+      .num-btn {
+        font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+      }
+    }
+
+    /* Kleine Handys */
+    @media (max-width: 360px) {
+      .cell {
+        font-size: 1rem;
+      }
+      .num-btn {
+        font-size: 1.1rem;
+      }
+    }
+
+    /* Tablets */
+    @media (min-width: 768px) {
+      .sudoku-grid {
+        max-width: 500px;
+      }
+      .cell {
+        font-size: 1.8rem;
+      }
+      .num-btn {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="video-screen" id="videoScreen">
-        <video id="introVideo" playsinline autoplay muted>
-            <source src="intro.mp4" type="video/mp4">
-            Dein Browser unterstützt kein Video.
-        </video>
-        <button class="skip-btn" onclick="skipVideo()">ÜBERSPRINGEN ⏭</button>
+  <div class="video-screen" id="videoScreen">
+    <video id="introVideo" playsinline autoplay muted>
+      <source src="intro.mp4" type="video/mp4" />
+      Dein Browser unterstützt kein Video.
+    </video>
+    <button class="skip-btn" onclick="skipVideo()">ÜBERSPRINGEN ⏭</button>
+  </div>
+
+  <div class="clouds-bg"></div>
+
+  <!-- Difficulty Overlay für Infinity -->
+  <div class="difficulty-overlay" id="difficultyOverlay">
+    <div class="difficulty-card">
+      <h3>∞ INFINITY MODUS</h3>
+      <p>Wähle die Schwierigkeit</p>
+      <div class="difficulty-grid">
+        <button class="diff-btn" onclick="startInfinityMode('easy')">EASY</button>
+        <button class="diff-btn" onclick="startInfinityMode('medium')">MEDIUM</button>
+        <button class="diff-btn" onclick="startInfinityMode('hard')">HARD</button>
+        <button class="diff-btn" onclick="startInfinityMode('legend')">LEGEND</button>
+        <button class="diff-btn random" onclick="startInfinityMode('random')">RANDOM</button>
+      </div>
+      <button class="btn" onclick="closeDifficulty()">ABBRECHEN</button>
     </div>
-    
-    <div class="clouds-bg"></div>
-    
-    <div class="screen" id="titleScreen">
-        <div class="title-screen-bg"></div>
-        <div class="title-overlay"></div>
-        
-        <div class="title-container">
-            <h1 class="main-title">BIBSIE BOYS<br>SODOKU SAGA</h1>
-            <p class="sub-title">シードクサーガ</p>
-            
-            <p style="color: white; margin-bottom: 15px; font-size: clamp(0.9rem, 3vw, 1.1rem); text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
-                "Finde die Liebe in den Zahlen"
-            </p>
-            
-            <button class="btn" onclick="showScreen('levelScreen')">📖 STORY MODUS</button>
-            <button class="btn infinity-btn-style" onclick="startInfinityMode()">∞ INFINITY MODUS</button>
-        </div>
+  </div>
+
+  <div class="screen" id="titleScreen">
+    <div class="title-screen-bg"></div>
+    <div class="title-overlay"></div>
+
+    <div class="title-container">
+      <h1 class="main-title">BIBSIE BOYS<br />SODOKU SAGA</h1>
+      <p class="sub-title">シードクサーガ</p>
+
+      <p style="color: white; margin-bottom: 15px; font-size: clamp(0.9rem, 3vw, 1.1rem); text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+        "Finde die Liebe in den Zahlen"
+      </p>
+
+      <button class="btn" onclick="showScreen('levelScreen')">📖 STORY MODUS</button>
+      <button class="btn infinity-btn-style" onclick="openDifficulty()">∞ INFINITY MODUS</button>
     </div>
-    
-    <div class="screen" id="levelScreen">
-        <h2 class="main-title" style="font-size: clamp(1.8rem, 6vw, 2.2rem); margin: 20px 0 10px; z-index: 20;">WÄHLE DEIN LEVEL</h2>
-        <p class="sub-title" style="z-index: 20; margin-bottom: 15px;">レベルを選択</p>
-        
-        <div class="level-grid" id="levelGrid">
-            </div>
-        
-        <button class="btn" onclick="showScreen('titleScreen')" style="margin-top: 15px; z-index: 20;">ZURÜCK</button>
-    </div>
-    
-    <div class="screen" id="gameScreen">
-        <div class="game-header">
-            <span id="levelDisplay">LEVEL 1</span>
-            <span id="streakDisplay" class="streak-display">🔥 STREAK: 0</span>
-            <span class="level-title" id="levelName">ROSA ANFANG</span>
-            <span id="timer">00:00</span>
-        </div>
-        
-        <img src="header.png" alt="Header" class="game-header-img">
-        
-        <div class="sudoku-container">
-            <div class="sudoku-grid" id="sudokuGrid">
-                </div>
-        </div>
-        
-        <div class="number-pad">
-            <button class="num-btn" onclick="enterNumber(1)">1</button>
-            <button class="num-btn" onclick="enterNumber(2)">2</button>
-            <button class="num-btn" onclick="enterNumber(3)">3</button>
-            <button class="num-btn" onclick="enterNumber(4)">4</button>
-            <button class="num-btn" onclick="enterNumber(5)">5</button>
-            <button class="num-btn" onclick="enterNumber(6)">6</button>
-            <button class="num-btn" onclick="enterNumber(7)">7</button>
-            <button class="num-btn" onclick="enterNumber(8)">8</button>
-            <button class="num-btn" onclick="enterNumber(9)">9</button>
-            <button class="num-btn action" onclick="clearCell()">✕</button>
-            <button class="num-btn action" onclick="useHint()">💡</button>
-            <button class="num-btn action" onclick="backToMenu()">⬅</button>
-        </div>
-    </div>
-    
-    <div class="win-overlay" id="winOverlay">
-        <div class="heart-explosion">💖</div>
-        <h2 class="win-text">BIBSIE LIEBE!<br>AKTIVIERT!</h2>
-        <p class="win-subtext">ビブシーラブ発動!</p>
-        <p style="color: white; font-size: clamp(0.9rem, 3.5vw, 1.1rem); margin-bottom: 15px; text-align: center;">
-            "Die Zahlen haben gesprochen..."
-        </p>
-        <button class="btn" onclick="nextLevel()">WEITER ➜</button>
-    </div>
-    
-    <div class="screen" id="finalScreen">
-        <div class="final-container">
-            <h2 class="main-title" style="font-size: clamp(1.5rem, 6vw, 2rem); margin-bottom: 15px;">SAGA COMPLETE!</h2>
-            
-            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <img src="hero.png" alt="Bibsie Boy" style="width: 80px; height: 120px; object-fit: contain; filter: drop-shadow(0 8px 15px rgba(255,45,85,0.6)); animation: heroFloat 3s infinite;">
-                
-                <div class="love-connection">💕</div>
-                
-                <div class="princess-emoji">👸</div>
-            </div>
-            
-            <div class="credits-box">
-                <h2>Prinzessin Mary wurde gerettet!</h2>
-                <p>"Die größte Liebe ist die,<br>die durch Zahlen gefunden wurde"</p>
-                <p style="margin-top: 10px; color: var(--gold);">ありがとうございました</p>
-            </div>
-            
-            <button class="btn" onclick="resetGame()" style="margin-top: 15px;">NEUES SPIEL+</button>
-        </div>
+  </div>
+
+  <div class="screen" id="levelScreen">
+    <h2 class="main-title" style="font-size: clamp(1.8rem, 6vw, 2.2rem); margin: 20px 0 10px; z-index: 20;">WÄHLE DEIN LEVEL</h2>
+    <p class="sub-title" style="z-index: 20; margin-bottom: 15px;">レベルを選択</p>
+
+    <div class="level-grid" id="levelGrid"></div>
+
+    <button class="btn" onclick="showScreen('titleScreen')" style="margin-top: 15px; z-index: 20;">ZURÜCK</button>
+  </div>
+
+  <div class="screen" id="gameScreen">
+    <div class="game-header">
+      <span id="levelDisplay">LEVEL 1</span>
+      <span id="streakDisplay" class="streak-display">🔥 STREAK: 0</span>
+      <span class="level-title" id="levelName">ROSA ANFANG</span>
+      <span id="timer">00:00</span>
     </div>
 
-    <script>
-        // Video Intro Logik
-        const video = document.getElementById('introVideo');
-        const videoScreen = document.getElementById('videoScreen');
-        
-        setTimeout(() => {
-            if (video.readyState === 0 || video.paused) {
-                console.log('Video lädt nicht, überspringe...');
-                skipVideo();
-            }
-        }, 3000);
-        
-        video.addEventListener('ended', function() {
-            videoScreen.classList.add('hidden');
-            document.getElementById('titleScreen').classList.add('active');
-        });
-        
-        video.addEventListener('error', function() {
-            skipVideo();
-        });
-        
-        function skipVideo() {
-            video.pause();
-            videoScreen.classList.add('hidden');
-            document.getElementById('titleScreen').classList.add('active');
+    <img src="header.png" alt="Header" class="game-header-img" />
+
+    <div class="sudoku-container">
+      <div class="sudoku-grid" id="sudokuGrid"></div>
+    </div>
+
+    <div class="number-pad">
+      <button class="num-btn" onclick="enterNumber(1)">1</button>
+      <button class="num-btn" onclick="enterNumber(2)">2</button>
+      <button class="num-btn" onclick="enterNumber(3)">3</button>
+      <button class="num-btn" onclick="enterNumber(4)">4</button>
+      <button class="num-btn" onclick="enterNumber(5)">5</button>
+      <button class="num-btn" onclick="enterNumber(6)">6</button>
+      <button class="num-btn" onclick="enterNumber(7)">7</button>
+      <button class="num-btn" onclick="enterNumber(8)">8</button>
+      <button class="num-btn" onclick="enterNumber(9)">9</button>
+      <button class="num-btn action" onclick="clearCell()">✕</button>
+      <button class="num-btn action" onclick="useHint()">💡</button>
+      <button class="num-btn action" onclick="backToMenu()">⬅</button>
+    </div>
+  </div>
+
+  <div class="win-overlay" id="winOverlay">
+    <div class="heart-explosion">💖</div>
+    <h2 class="win-text">BIBSIE LIEBE!<br />AKTIVIERT!</h2>
+    <p class="win-subtext">ビブシーラブ発動!</p>
+    <p style="color: white; font-size: clamp(0.9rem, 3.5vw, 1.1rem); margin-bottom: 15px; text-align: center;">
+      "Die Zahlen haben gesprochen..."
+    </p>
+    <button class="btn" onclick="nextLevel()">WEITER ➜</button>
+  </div>
+
+  <div class="screen" id="finalScreen">
+    <div class="final-container">
+      <h2 class="main-title" style="font-size: clamp(1.5rem, 6vw, 2rem); margin-bottom: 15px;">SAGA COMPLETE!</h2>
+
+      <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+        <img src="hero.png" alt="Bibsie Boy" style="width: 80px; height: 120px; object-fit: contain; filter: drop-shadow(0 8px 15px rgba(255,45,85,0.6)); animation: heroFloat 3s infinite;" />
+        <div class="love-connection">💕</div>
+        <div class="princess-emoji">👸</div>
+      </div>
+
+      <div class="credits-box">
+        <h2>Prinzessin Mary wurde gerettet!</h2>
+        <p>"Die größte Liebe ist die,<br />die durch Zahlen gefunden wurde"</p>
+        <p style="margin-top: 10px; color: var(--gold);">ありがとうございました</p>
+      </div>
+
+      <button class="btn" onclick="resetGame()" style="margin-top: 15px;">NEUES SPIEL+</button>
+    </div>
+  </div>
+
+  <script>
+    // Video Intro Logik
+    const video = document.getElementById('introVideo');
+    const videoScreen = document.getElementById('videoScreen');
+
+    setTimeout(() => {
+      if (video.readyState === 0 || video.paused) {
+        skipVideo();
+      }
+    }, 3000);
+
+    video.addEventListener('ended', function () {
+      videoScreen.classList.add('hidden');
+      document.getElementById('titleScreen').classList.add('active');
+    });
+
+    video.addEventListener('error', function () {
+      skipVideo();
+    });
+
+    function skipVideo() {
+      try { video.pause(); } catch (e) {}
+      videoScreen.classList.add('hidden');
+      document.getElementById('titleScreen').classList.add('active');
+    }
+
+    // Game State
+    let currentLevel = 1;
+    let selectedCell = null;
+    let gameGrid = [];
+    let solutionGrid = [];
+    let fixedCells = [];
+    let timer = 0;
+    let timerInterval = null;
+    let completedLevels = JSON.parse(localStorage.getItem('bibsieCompleted')) || [];
+
+    // Infinity Mode State
+    let isInfinityMode = false;
+    let currentStreak = parseInt(localStorage.getItem('bibsieStreak')) || 0;
+
+    // Difficulty Overlay
+    function openDifficulty() {
+      document.getElementById('difficultyOverlay').classList.add('active');
+    }
+    function closeDifficulty() {
+      document.getElementById('difficultyOverlay').classList.remove('active');
+    }
+
+    // Level Konfiguration
+    const levels = [
+      { name: "ROSA ANFANG", difficulty: "easy", color: "#FF6B9D" },
+      { name: "NEON STORM", difficulty: "easy", color: "#FF2D55" },
+      { name: "ENERGIE FLUSS", difficulty: "medium", color: "#FF1744" },
+      { name: "DONNER DIMENSION", difficulty: "medium", color: "#D50000" },
+      { name: "PLASMA ZONE", difficulty: "medium", color: "#C51162" },
+      { name: "KOSMISCHER WAL", difficulty: "hard", color: "#AA00FF" },
+      { name: "SUPERNOVA", difficulty: "hard", color: "#6200EA" },
+      { name: "GALAXY GATE", difficulty: "hard", color: "#304FFE" },
+      { name: "PRINZESSIN MARY", difficulty: "legend", color: "#FFD700" }
+    ];
+
+    // Story Puzzles
+    const levelData = [
+      {
+        puzzle: [
+          [5,3,0,0,7,0,0,0,0], [6,0,0,1,9,5,0,0,0], [0,9,8,0,0,0,0,6,0],
+          [8,0,0,0,6,0,0,0,3], [4,0,0,8,0,3,0,0,1], [7,0,0,0,2,0,0,0,6],
+          [0,6,0,0,0,0,2,8,0], [0,0,0,4,1,9,0,0,5], [0,0,0,0,8,0,0,7,9]
+        ],
+        solution: [
+          [5,3,4,6,7,8,9,1,2], [6,7,2,1,9,5,3,4,8], [1,9,8,3,4,2,5,6,7],
+          [8,5,9,7,6,1,4,2,3], [4,2,6,8,5,3,7,9,1], [7,1,3,9,2,4,8,5,6],
+          [9,6,1,5,3,7,2,8,4], [2,8,7,4,1,9,6,3,5], [3,4,5,2,8,6,1,7,9]
+        ]
+      },
+      {
+        puzzle: [
+          [0,0,0,2,6,0,7,0,1], [6,8,0,0,7,0,0,9,0], [1,9,0,0,0,4,5,0,0],
+          [8,2,0,1,0,0,0,4,0], [0,0,4,6,0,2,9,0,0], [0,5,0,0,0,3,0,2,8],
+          [0,0,9,3,0,0,0,7,4], [0,4,0,0,5,0,0,3,6], [7,0,3,0,1,8,0,0,0]
+        ],
+        solution: [
+          [4,3,5,2,6,9,7,8,1], [6,8,2,5,7,1,4,9,3], [1,9,7,8,3,4,5,6,2],
+          [8,2,6,1,9,5,3,4,7], [3,7,4,6,8,2,9,1,5], [9,5,1,7,4,3,6,2,8],
+          [5,1,9,3,2,6,8,7,4], [2,4,8,9,5,7,1,3,6], [7,6,3,4,1,8,2,5,9]
+        ]
+      },
+      {
+        puzzle: [
+          [1,0,0,4,8,9,0,0,6], [7,3,0,0,0,0,0,4,0], [0,0,0,0,0,1,2,9,5],
+          [0,0,7,1,2,0,6,0,0], [5,0,0,7,0,3,0,0,8], [0,0,6,0,9,5,7,0,0],
+          [9,1,4,6,0,0,0,0,0], [0,2,0,0,0,0,0,3,7], [8,0,0,5,1,2,0,0,4]
+        ],
+        solution: [
+          [1,5,2,4,8,9,3,7,6], [7,3,9,2,5,6,8,4,1], [4,6,8,3,7,1,2,9,5],
+          [3,8,7,1,2,4,6,5,9], [5,9,1,7,6,3,4,2,8], [2,4,6,8,9,5,7,1,3],
+          [9,1,4,6,3,7,5,8,2], [6,2,5,9,4,8,1,3,7], [8,7,3,5,1,2,9,6,4]
+        ]
+      },
+      {
+        puzzle: [
+          [5,6,0,8,4,7,0,0,0], [3,0,9,0,0,0,6,0,0], [0,0,8,0,0,0,0,0,0],
+          [0,1,0,0,8,0,0,4,0], [7,9,0,6,0,2,0,1,8], [0,5,0,0,3,0,0,9,0],
+          [0,0,0,0,0,0,2,0,0], [0,0,6,0,0,0,8,0,7], [0,0,0,3,1,6,0,5,9]
+        ],
+        solution: [
+          [5,6,1,8,4,7,9,2,3], [3,7,9,5,2,1,6,8,4], [4,2,8,9,6,3,1,7,5],
+          [6,1,3,7,8,9,5,4,2], [7,9,4,6,5,2,3,1,8], [8,5,2,1,3,4,7,9,6],
+          [9,3,5,4,7,8,2,6,1], [1,4,6,2,9,5,8,3,7], [2,8,7,3,1,6,4,5,9]
+        ]
+      },
+      {
+        puzzle: [
+          [6,4,0,0,8,0,0,0,0], [7,0,0,2,1,6,0,0,0], [0,1,9,0,0,0,0,7,0],
+          [9,0,0,0,7,0,0,0,4], [5,0,0,9,0,4,0,0,2], [8,0,0,0,3,0,0,0,7],
+          [0,7,0,0,0,0,3,9,0], [0,0,0,5,2,1,0,0,6], [0,0,0,0,9,0,0,8,1]
+        ],
+        solution: [
+          [6,4,5,7,8,9,1,2,3], [7,8,3,2,1,6,4,5,9], [2,1,9,4,5,3,6,7,8],
+          [9,6,1,8,7,2,5,3,4], [5,3,7,9,6,4,8,1,2], [8,2,4,1,3,5,9,6,7],
+          [1,7,2,6,4,8,3,9,5], [3,9,8,5,2,1,7,4,6], [4,5,6,3,9,7,2,8,1]
+        ]
+      },
+      {
+        puzzle: [
+          [9,7,0,0,8,0,0,0,0], [5,0,0,9,1,4,0,0,0], [0,8,2,0,0,0,0,6,0],
+          [6,0,0,0,2,0,0,0,7], [1,0,0,3,0,8,0,0,4], [3,0,0,0,6,0,0,0,8],
+          [0,6,0,0,0,0,8,9,0], [0,0,0,5,9,1,0,0,6], [0,0,0,0,7,0,0,3,5]
+        ],
+        solution: [
+          [9,7,1,6,8,2,5,4,3], [5,3,6,9,1,4,7,8,2], [4,8,2,7,3,5,1,6,9],
+          [6,5,8,4,2,9,3,1,7], [1,9,7,3,5,8,6,2,4], [3,2,4,1,6,7,9,5,8],
+          [7,6,5,2,4,3,8,9,1], [8,4,3,5,9,1,2,7,6], [2,1,9,8,7,6,4,3,5]
+        ]
+      },
+      {
+        puzzle: [
+          [8,6,0,0,1,0,0,0,0], [9,0,0,4,3,8,0,0,0], [0,3,2,0,0,0,0,9,0],
+          [2,0,0,0,9,0,0,0,6], [7,0,0,2,0,6,0,0,4], [1,0,0,0,5,0,0,0,9],
+          [0,9,0,0,0,0,5,2,0], [0,0,0,7,4,3,0,0,8], [0,0,0,0,2,0,0,1,3]
+        ],
+        solution: [
+          [8,6,7,9,1,2,3,4,5], [9,1,5,4,3,8,6,7,2], [4,3,2,6,7,5,8,9,1],
+          [2,8,3,1,9,4,7,5,6], [7,5,9,2,8,6,1,3,4], [1,4,6,3,5,7,2,8,9],
+          [3,9,4,8,6,1,5,2,7], [5,2,1,7,4,3,9,6,8], [6,7,8,5,2,9,4,1,3]
+        ]
+      },
+      {
+        puzzle: [
+          [0,6,1,8,0,0,0,0,7], [0,8,9,2,0,5,0,4,0], [0,0,0,0,4,0,9,0,3],
+          [2,0,0,1,6,0,3,0,0], [6,7,0,0,0,0,0,5,1], [0,0,4,0,2,3,0,0,8],
+          [7,0,5,0,9,0,0,0,0], [0,9,0,4,0,2,7,3,0], [1,0,0,0,0,8,4,6,0]
+        ],
+        solution: [
+          [4,6,1,8,3,9,5,2,7], [3,8,9,2,7,5,1,4,6], [5,2,7,6,4,1,9,8,3],
+          [2,5,8,1,6,7,3,9,4], [6,7,3,9,8,4,2,5,1], [9,1,4,5,2,3,6,7,8],
+          [7,4,5,3,9,6,8,1,2], [8,9,6,4,1,2,7,3,5], [1,3,2,7,5,8,4,6,9]
+        ]
+      },
+      {
+        puzzle: [
+          [1,8,0,0,3,0,0,0,0], [2,0,0,6,5,1,0,0,0], [0,5,4,0,0,0,0,2,0],
+          [4,0,0,0,2,0,0,0,8], [9,0,0,4,0,8,0,0,6], [3,0,0,0,7,0,0,0,2],
+          [0,2,0,0,0,0,7,4,0], [0,0,0,9,6,5,0,0,1], [0,0,0,0,4,0,0,3,5]
+        ],
+        solution: [
+          [1,8,9,2,3,4,5,6,7], [2,3,7,6,5,1,8,9,4], [6,5,4,8,9,7,1,2,3],
+          [4,1,5,3,2,9,6,7,8], [9,7,2,4,1,8,3,5,6], [3,6,8,5,7,9,4,1,2],
+          [5,2,6,1,8,3,7,4,9], [7,4,3,9,6,5,1,8,2], [8,9,1,7,4,2,6,3,5]
+        ]
+      }
+    ];
+
+    // Sudoku Generator
+    class SudokuGenerator {
+      constructor(N, K) {
+        this.N = N;
+        this.K = K;
+        this.SRN = Math.floor(Math.sqrt(N));
+        this.mat = Array(N).fill().map(() => Array(N).fill(0));
+      }
+
+      fillValues() {
+        this.fillDiagonal();
+        this.fillRemaining(0, this.SRN);
+        let solution = this.mat.map(row => [...row]);
+        if (this.K > 0) this.removeKDigits();
+        return { puzzle: this.mat, solution: solution };
+      }
+
+      fillDiagonal() {
+        for (let i = 0; i < this.N; i = i + this.SRN) {
+          this.fillBox(i, i);
         }
-        
-        // Game State
-        let currentLevel = 1;
-        let selectedCell = null;
-        let gameGrid = [];
-        let solutionGrid = [];
-        let fixedCells = [];
-        let timer = 0;
-        let timerInterval = null;
-        let completedLevels = JSON.parse(localStorage.getItem('bibsieCompleted')) || [];
-        
-        // Infinity Mode State
-        let isInfinityMode = false;
-        let currentStreak = parseInt(localStorage.getItem('bibsieStreak')) || 0;
-        
-        // Level Konfiguration
-        const levels = [
-            { name: "ROSA ANFANG", difficulty: "easy", color: "#FF6B9D" },
-            { name: "NEON STORM", difficulty: "easy", color: "#FF2D55" },
-            { name: "ENERGIE FLUSS", difficulty: "medium", color: "#FF1744" },
-            { name: "DONNER DIMENSION", difficulty: "medium", color: "#D50000" },
-            { name: "PLASMA ZONE", difficulty: "medium", color: "#C51162" },
-            { name: "KOSMISCHER WAL", difficulty: "hard", color: "#AA00FF" },
-            { name: "SUPERNOVA", difficulty: "hard", color: "#6200EA" },
-            { name: "GALAXY GATE", difficulty: "hard", color: "#304FFE" },
-            { name: "PRINZESSIN MARY", difficulty: "legend", color: "#FFD700" }
-        ];
-        
-        // 9 FEST DEFINIERTE SUDOKUS (Permutationen von Level 1 für Lösbarkeitsgarantie)
-        // DU KANNST DIESEN BLOCK SPÄTER DURCH DEINE EIGENEN ARRAYS TAUSCHEN
-        const levelData = [
-            // LEVEL 1
-            {
-                puzzle: [
-                    [5,3,0,0,7,0,0,0,0], [6,0,0,1,9,5,0,0,0], [0,9,8,0,0,0,0,6,0],
-                    [8,0,0,0,6,0,0,0,3], [4,0,0,8,0,3,0,0,1], [7,0,0,0,2,0,0,0,6],
-                    [0,6,0,0,0,0,2,8,0], [0,0,0,4,1,9,0,0,5], [0,0,0,0,8,0,0,7,9]
-                ],
-                solution: [
-                    [5,3,4,6,7,8,9,1,2], [6,7,2,1,9,5,3,4,8], [1,9,8,3,4,2,5,6,7],
-                    [8,5,9,7,6,1,4,2,3], [4,2,6,8,5,3,7,9,1], [7,1,3,9,2,4,8,5,6],
-                    [9,6,1,5,3,7,2,8,4], [2,8,7,4,1,9,6,3,5], [3,4,5,2,8,6,1,7,9]
-                ]
-            },
-            // LEVEL 2
-            {
-                puzzle: [
-                    [0,0,0,2,6,0,7,0,1], [6,8,0,0,7,0,0,9,0], [1,9,0,0,0,4,5,0,0],
-                    [8,2,0,1,0,0,0,4,0], [0,0,4,6,0,2,9,0,0], [0,5,0,0,0,3,0,2,8],
-                    [0,0,9,3,0,0,0,7,4], [0,4,0,0,5,0,0,3,6], [7,0,3,0,1,8,0,0,0]
-                ],
-                solution: [
-                    [4,3,5,2,6,9,7,8,1], [6,8,2,5,7,1,4,9,3], [1,9,7,8,3,4,5,6,2],
-                    [8,2,6,1,9,5,3,4,7], [3,7,4,6,8,2,9,1,5], [9,5,1,7,4,3,6,2,8],
-                    [5,1,9,3,2,6,8,7,4], [2,4,8,9,5,7,1,3,6], [7,6,3,4,1,8,2,5,9]
-                ]
-            },
-            // LEVEL 3
-            {
-                puzzle: [
-                    [1,0,0,4,8,9,0,0,6], [7,3,0,0,0,0,0,4,0], [0,0,0,0,0,1,2,9,5],
-                    [0,0,7,1,2,0,6,0,0], [5,0,0,7,0,3,0,0,8], [0,0,6,0,9,5,7,0,0],
-                    [9,1,4,6,0,0,0,0,0], [0,2,0,0,0,0,0,3,7], [8,0,0,5,1,2,0,0,4]
-                ],
-                solution: [
-                    [1,5,2,4,8,9,3,7,6], [7,3,9,2,5,6,8,4,1], [4,6,8,3,7,1,2,9,5],
-                    [3,8,7,1,2,4,6,5,9], [5,9,1,7,6,3,4,2,8], [2,4,6,8,9,5,7,1,3],
-                    [9,1,4,6,3,7,5,8,2], [6,2,5,9,4,8,1,3,7], [8,7,3,5,1,2,9,6,4]
-                ]
-            },
-            // LEVEL 4 (Permutation)
-            {
-                puzzle: [
-                    [5,6,0,8,4,7,0,0,0], [3,0,9,0,0,0,6,0,0], [0,0,8,0,0,0,0,0,0],
-                    [0,1,0,0,8,0,0,4,0], [7,9,0,6,0,2,0,1,8], [0,5,0,0,3,0,0,9,0],
-                    [0,0,0,0,0,0,2,0,0], [0,0,6,0,0,0,8,0,7], [0,0,0,3,1,6,0,5,9]
-                ],
-                solution: [
-                    [5,6,1,8,4,7,9,2,3], [3,7,9,5,2,1,6,8,4], [4,2,8,9,6,3,1,7,5],
-                    [6,1,3,7,8,9,5,4,2], [7,9,4,6,5,2,3,1,8], [8,5,2,1,3,4,7,9,6],
-                    [9,3,5,4,7,8,2,6,1], [1,4,6,2,9,5,8,3,7], [2,8,7,3,1,6,4,5,9]
-                ]
-            },
-            // LEVEL 5 (Permutation)
-            {
-                puzzle: [
-                    [6,4,0,0,8,0,0,0,0], [7,0,0,2,1,6,0,0,0], [0,1,9,0,0,0,0,7,0],
-                    [9,0,0,0,7,0,0,0,4], [5,0,0,9,0,4,0,0,2], [8,0,0,0,3,0,0,0,7],
-                    [0,7,0,0,0,0,3,9,0], [0,0,0,5,2,1,0,0,6], [0,0,0,0,9,0,0,8,1]
-                ],
-                solution: [
-                    [6,4,5,7,8,9,1,2,3], [7,8,3,2,1,6,4,5,9], [2,1,9,4,5,3,6,7,8],
-                    [9,6,1,8,7,2,5,3,4], [5,3,7,9,6,4,8,1,2], [8,2,4,1,3,5,9,6,7],
-                    [1,7,2,6,4,8,3,9,5], [3,9,8,5,2,1,7,4,6], [4,5,6,3,9,7,2,8,1]
-                ]
-            },
-            // LEVEL 6 (Permutation)
-            {
-                puzzle: [
-                    [9,7,0,0,8,0,0,0,0], [5,0,0,9,1,4,0,0,0], [0,8,2,0,0,0,0,6,0],
-                    [6,0,0,0,2,0,0,0,7], [1,0,0,3,0,8,0,0,4], [3,0,0,0,6,0,0,0,8],
-                    [0,6,0,0,0,0,8,9,0], [0,0,0,5,9,1,0,0,6], [0,0,0,0,7,0,0,3,5]
-                ],
-                solution: [
-                    [9,7,1,6,8,2,5,4,3], [5,3,6,9,1,4,7,8,2], [4,8,2,7,3,5,1,6,9],
-                    [6,5,8,4,2,9,3,1,7], [1,9,7,3,5,8,6,2,4], [3,2,4,1,6,7,9,5,8],
-                    [7,6,5,2,4,3,8,9,1], [8,4,3,5,9,1,2,7,6], [2,1,9,8,7,6,4,3,5]
-                ]
-            },
-            // LEVEL 7 (Permutation)
-            {
-                puzzle: [
-                    [8,6,0,0,1,0,0,0,0], [9,0,0,4,3,8,0,0,0], [0,3,2,0,0,0,0,9,0],
-                    [2,0,0,0,9,0,0,0,6], [7,0,0,2,0,6,0,0,4], [1,0,0,0,5,0,0,0,9],
-                    [0,9,0,0,0,0,5,2,0], [0,0,0,7,4,3,0,0,8], [0,0,0,0,2,0,0,1,3]
-                ],
-                solution: [
-                    [8,6,7,9,1,2,3,4,5], [9,1,5,4,3,8,6,7,2], [4,3,2,6,7,5,8,9,1],
-                    [2,8,3,1,9,4,7,5,6], [7,5,9,2,8,6,1,3,4], [1,4,6,3,5,7,2,8,9],
-                    [3,9,4,8,6,1,5,2,7], [5,2,1,7,4,3,9,6,8], [6,7,8,5,2,9,4,1,3]
-                ]
-            },
-            // LEVEL 8 (Permutation)
-            {
-                puzzle: [
-                    [0,6,1,8,0,0,0,0,7], [0,8,9,2,0,5,0,4,0], [0,0,0,0,4,0,9,0,3],
-                    [2,0,0,1,6,0,3,0,0], [6,7,0,0,0,0,0,5,1], [0,0,4,0,2,3,0,0,8],
-                    [7,0,5,0,9,0,0,0,0], [0,9,0,4,0,2,7,3,0], [1,0,0,0,0,8,4,6,0]
-                ],
-                solution: [
-                    [4,6,1,8,3,9,5,2,7], [3,8,9,2,7,5,1,4,6], [5,2,7,6,4,1,9,8,3],
-                    [2,5,8,1,6,7,3,9,4], [6,7,3,9,8,4,2,5,1], [9,1,4,5,2,3,6,7,8],
-                    [7,4,5,3,9,6,8,1,2], [8,9,6,4,1,2,7,3,5], [1,3,2,7,5,8,4,6,9]
-                ]
-            },
-            // LEVEL 9 (Permutation)
-            {
-                puzzle: [
-                    [1,8,0,0,3,0,0,0,0], [2,0,0,6,5,1,0,0,0], [0,5,4,0,0,0,0,2,0],
-                    [4,0,0,0,2,0,0,0,8], [9,0,0,4,0,8,0,0,6], [3,0,0,0,7,0,0,0,2],
-                    [0,2,0,0,0,0,7,4,0], [0,0,0,9,6,5,0,0,1], [0,0,0,0,4,0,0,3,5]
-                ],
-                solution: [
-                    [1,8,9,2,3,4,5,6,7], [2,3,7,6,5,1,8,9,4], [6,5,4,8,9,7,1,2,3],
-                    [4,1,5,3,2,9,6,7,8], [9,7,2,4,1,8,3,5,6], [3,6,8,5,7,9,4,1,2],
-                    [5,2,6,1,8,3,7,4,9], [7,4,3,9,6,5,1,8,2], [8,9,1,7,4,2,6,3,5]
-                ]
-            }
-        ];
-        
-        // --- SUDOKU GENERATOR (Backtracking Algorithm) ---
-        class SudokuGenerator {
-            constructor(N, K) {
-                this.N = N;
-                this.K = K;
-                this.SRN = Math.floor(Math.sqrt(N));
-                this.mat = Array(N).fill().map(() => Array(N).fill(0));
-            }
-            fillValues() {
-                this.fillDiagonal();
-                this.fillRemaining(0, this.SRN);
-                let solution = this.mat.map(row => [...row]);
-                this.removeKDigits();
-                return { puzzle: this.mat, solution: solution };
-            }
-            fillDiagonal() {
-                for (let i = 0; i < this.N; i = i + this.SRN) {
-                    this.fillBox(i, i);
-                }
-            }
-            unUsedInBox(rowStart, colStart, num) {
-                for (let i = 0; i < this.SRN; i++) {
-                    for (let j = 0; j < this.SRN; j++) {
-                        if (this.mat[rowStart + i][colStart + j] === num) return false;
-                    }
-                }
-                return true;
-            }
-            fillBox(row, col) {
-                let num;
-                for (let i = 0; i < this.SRN; i++) {
-                    for (let j = 0; j < this.SRN; j++) {
-                        do {
-                            num = Math.floor(Math.random() * this.N) + 1;
-                        } while (!this.unUsedInBox(row, col, num));
-                        this.mat[row + i][col + j] = num;
-                    }
-                }
-            }
-            checkIfSafe(i, j, num) {
-                return (
-                    this.unUsedInRow(i, num) &&
-                    this.unUsedInCol(j, num) &&
-                    this.unUsedInBox(i - (i % this.SRN), j - (j % this.SRN), num)
-                );
-            }
-            unUsedInRow(i, num) {
-                for (let j = 0; j < this.N; j++) {
-                    if (this.mat[i][j] === num) return false;
-                }
-                return true;
-            }
-            unUsedInCol(j, num) {
-                for (let i = 0; i < this.N; i++) {
-                    if (this.mat[i][j] === num) return false;
-                }
-                return true;
-            }
-            fillRemaining(i, j) {
-                if (j >= this.N && i < this.N - 1) {
-                    i = i + 1;
-                    j = 0;
-                }
-                if (i >= this.N && j >= this.N) return true;
-                if (i < this.SRN) {
-                    if (j < this.SRN) j = this.SRN;
-                } else if (i < this.N - this.SRN) {
-                    if (j === Math.floor(i / this.SRN) * this.SRN) j = j + this.SRN;
-                } else {
-                    if (j === this.N - this.SRN) {
-                        i = i + 1;
-                        j = 0;
-                        if (i >= this.N) return true;
-                    }
-                }
-                for (let num = 1; num <= this.N; num++) {
-                    if (this.checkIfSafe(i, j, num)) {
-                        this.mat[i][j] = num;
-                        if (this.fillRemaining(i, j + 1)) return true;
-                        this.mat[i][j] = 0;
-                    }
-                }
-                return false;
-            }
-            removeKDigits() {
-                let count = this.K;
-                while (count !== 0) {
-                    let cellId = Math.floor(Math.random() * (this.N * this.N));
-                    let i = Math.floor(cellId / this.N);
-                    let j = cellId % 9;
-                    if (this.mat[i][j] !== 0) {
-                        count--;
-                        this.mat[i][j] = 0;
-                    }
-                }
-            }
+      }
+
+      unUsedInBox(rowStart, colStart, num) {
+        for (let i = 0; i < this.SRN; i++) {
+          for (let j = 0; j < this.SRN; j++) {
+            if (this.mat[rowStart + i][colStart + j] === num) return false;
+          }
         }
-        
-        // --- GAME LOGIK ---
-        
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-            
-            if (screenId === 'levelScreen') {
-                renderLevelSelect();
+        return true;
+      }
+
+      fillBox(row, col) {
+        let num;
+        for (let i = 0; i < this.SRN; i++) {
+          for (let j = 0; j < this.SRN; j++) {
+            do {
+              num = Math.floor(Math.random() * this.N) + 1;
+            } while (!this.unUsedInBox(row, col, num));
+            this.mat[row + i][col + j] = num;
+          }
+        }
+      }
+
+      checkIfSafe(i, j, num) {
+        return (
+          this.unUsedInRow(i, num) &&
+          this.unUsedInCol(j, num) &&
+          this.unUsedInBox(i - (i % this.SRN), j - (j % this.SRN), num)
+        );
+      }
+
+      unUsedInRow(i, num) {
+        for (let j = 0; j < this.N; j++) {
+          if (this.mat[i][j] === num) return false;
+        }
+        return true;
+      }
+
+      unUsedInCol(j, num) {
+        for (let i = 0; i < this.N; i++) {
+          if (this.mat[i][j] === num) return false;
+        }
+        return true;
+      }
+
+      fillRemaining(i, j) {
+        if (j >= this.N && i < this.N - 1) {
+          i = i + 1;
+          j = 0;
+        }
+        if (i >= this.N && j >= this.N) return true;
+
+        if (i < this.SRN) {
+          if (j < this.SRN) j = this.SRN;
+        } else if (i < this.N - this.SRN) {
+          if (j === Math.floor(i / this.SRN) * this.SRN) j = j + this.SRN;
+        } else {
+          if (j === this.N - this.SRN) {
+            i = i + 1;
+            j = 0;
+            if (i >= this.N) return true;
+          }
+        }
+
+        for (let num = 1; num <= this.N; num++) {
+          if (this.checkIfSafe(i, j, num)) {
+            this.mat[i][j] = num;
+            if (this.fillRemaining(i, j + 1)) return true;
+            this.mat[i][j] = 0;
+          }
+        }
+        return false;
+      }
+
+      removeKDigits() {
+        let count = this.K;
+        while (count !== 0) {
+          let cellId = Math.floor(Math.random() * (this.N * this.N));
+          let i = Math.floor(cellId / this.N);
+          let j = cellId % this.N;
+          if (this.mat[i][j] !== 0) {
+            count--;
+            this.mat[i][j] = 0;
+          }
+        }
+      }
+    }
+
+    // Infinity Difficulty Profiles
+    const infinityProfiles = {
+      easy:   { K: 36, label: "EWIGE LIEBE EASY" },
+      medium: { K: 45, label: "EWIGE LIEBE MEDIUM" },
+      hard:   { K: 52, label: "EWIGE LIEBE HARD" },
+      legend: { K: 58, label: "EWIGE LIEBE LEGEND" }
+    };
+
+    function pickRandomInfinityProfile() {
+      const r = Math.random();
+      if (r < 0.60) return 'medium';
+      if (r < 0.85) return 'easy';
+      if (r < 0.97) return 'hard';
+      return 'legend';
+    }
+
+    // Solver Helpers für Unique Check
+    function deepCopyGrid(g) { return g.map(r => r.slice()); }
+
+    function findEmptyCell(grid) {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (grid[r][c] === 0) return [r, c];
+        }
+      }
+      return null;
+    }
+
+    function isSafe(grid, row, col, num) {
+      for (let x = 0; x < 9; x++) {
+        if (grid[row][x] === num) return false;
+        if (grid[x][col] === num) return false;
+      }
+      const boxRow = row - (row % 3);
+      const boxCol = col - (col % 3);
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          if (grid[boxRow + r][boxCol + c] === num) return false;
+        }
+      }
+      return true;
+    }
+
+    function countSolutions(grid, limit = 2) {
+      const empty = findEmptyCell(grid);
+      if (!empty) return 1;
+
+      const [row, col] = empty;
+      let count = 0;
+
+      const nums = [1,2,3,4,5,6,7,8,9];
+      for (let i = nums.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [nums[i], nums[j]] = [nums[j], nums[i]];
+      }
+
+      for (const num of nums) {
+        if (isSafe(grid, row, col, num)) {
+          grid[row][col] = num;
+          count += countSolutions(grid, limit);
+          if (count >= limit) {
+            grid[row][col] = 0;
+            return count;
+          }
+          grid[row][col] = 0;
+        }
+      }
+      return count;
+    }
+
+    function makeUniquePuzzleFromSolution(fullSolution, K) {
+      const puzzle = deepCopyGrid(fullSolution);
+
+      const positions = [];
+      for (let i = 0; i < 81; i++) positions.push(i);
+      for (let i = positions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [positions[i], positions[j]] = [positions[j], positions[i]];
+      }
+
+      let removed = 0;
+      for (const pos of positions) {
+        if (removed >= K) break;
+
+        const r = Math.floor(pos / 9);
+        const c = pos % 9;
+        if (puzzle[r][c] === 0) continue;
+
+        const backup = puzzle[r][c];
+        puzzle[r][c] = 0;
+
+        const testGrid = deepCopyGrid(puzzle);
+        const solCount = countSolutions(testGrid, 2);
+
+        if (solCount !== 1) {
+          puzzle[r][c] = backup;
+        } else {
+          removed++;
+        }
+      }
+
+      return puzzle;
+    }
+
+    // UI Navigation
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+
+      if (screenId === 'levelScreen') {
+        renderLevelSelect();
+      }
+    }
+
+    // Infinity Start mit Auswahl
+    function startInfinityMode(difficulty = 'random') {
+      closeDifficulty();
+      isInfinityMode = true;
+      showScreen('gameScreen');
+
+      const key = (difficulty === 'random') ? pickRandomInfinityProfile() : difficulty;
+      const profile = infinityProfiles[key] || infinityProfiles.medium;
+
+      document.getElementById('levelDisplay').textContent = "∞";
+      document.getElementById('levelName').textContent = profile.label;
+      document.getElementById('levelName').style.color = '#FFD700';
+      document.getElementById('streakDisplay').style.display = 'inline';
+      document.getElementById('streakDisplay').textContent = `🔥 STREAK: ${currentStreak}`;
+
+      const generator = new SudokuGenerator(9, 0);
+      const generatedData = generator.fillValues();
+      const fullSolution = generatedData.solution;
+
+      const puzzle = makeUniquePuzzleFromSolution(fullSolution, profile.K);
+
+      gameGrid = puzzle;
+      solutionGrid = fullSolution;
+
+      fixedCells = [];
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          if (gameGrid[i][j] !== 0) fixedCells.push(i * 9 + j);
+        }
+      }
+
+      renderGrid();
+      startTimer();
+    }
+
+    function renderLevelSelect() {
+      const grid = document.getElementById('levelGrid');
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= 9; i++) {
+        const btn = document.createElement('div');
+        btn.className = 'level-btn';
+        btn.innerHTML = `<div style="font-size: 1.1rem;">${i}</div><div style="font-size: 0.65rem; font-family: 'Noto Sans JP';">${levels[i-1].name.substring(0, 8)}</div>`;
+
+        if (i === 9) {
+          btn.classList.add('final');
+          btn.innerHTML = '👸 PRINZESSIN MARY';
+        }
+
+        if (completedLevels.includes(i)) {
+          btn.classList.add('completed');
+          btn.onclick = () => startLevel(i);
+        } else if (i === 1 || completedLevels.includes(i - 1)) {
+          btn.classList.add('available');
+          btn.onclick = () => startLevel(i);
+        } else {
+          btn.classList.add('locked');
+          btn.innerHTML = '🔒';
+        }
+
+        grid.appendChild(btn);
+      }
+    }
+
+    function startLevel(level) {
+      isInfinityMode = false;
+      document.getElementById('streakDisplay').style.display = 'none';
+
+      currentLevel = level;
+      document.getElementById('levelDisplay').textContent = `LEVEL ${level}`;
+      document.getElementById('levelName').textContent = levels[level-1].name;
+      document.getElementById('levelName').style.color = levels[level-1].color;
+
+      generateSudoku(level);
+      renderGrid();
+      startTimer();
+
+      showScreen('gameScreen');
+    }
+
+    function generateSudoku(level) {
+      const data = levelData[level - 1];
+      gameGrid = data.puzzle.map(row => [...row]);
+      solutionGrid = data.solution.map(row => [...row]);
+
+      fixedCells = [];
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          if (gameGrid[i][j] !== 0) fixedCells.push(i * 9 + j);
+        }
+      }
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('sudokuGrid');
+      grid.innerHTML = '';
+      selectedCell = null;
+
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.index = i * 9 + j;
+          cell.dataset.row = i;
+          cell.dataset.col = j;
+
+          if (gameGrid[i][j] !== 0) {
+            cell.textContent = gameGrid[i][j];
+            if (fixedCells.includes(i * 9 + j)) cell.classList.add('fixed');
+          }
+
+          cell.onclick = () => selectCell(cell);
+          grid.appendChild(cell);
+        }
+      }
+    }
+
+    function selectCell(cell) {
+      if (cell.classList.contains('fixed')) return;
+
+      document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
+      cell.classList.add('selected');
+      selectedCell = cell;
+    }
+
+    function enterNumber(num) {
+      if (!selectedCell) return;
+
+      const row = parseInt(selectedCell.dataset.row);
+      const col = parseInt(selectedCell.dataset.col);
+
+      if (fixedCells.includes(row * 9 + col)) return;
+
+      gameGrid[row][col] = num;
+      selectedCell.textContent = num;
+      selectedCell.classList.remove('error');
+
+      if (!isValidMove(row, col, num)) {
+        selectedCell.classList.add('error');
+        shakeScreen();
+      }
+
+      checkWin();
+    }
+
+    function clearCell() {
+      if (!selectedCell) return;
+
+      const row = parseInt(selectedCell.dataset.row);
+      const col = parseInt(selectedCell.dataset.col);
+
+      if (fixedCells.includes(row * 9 + col)) return;
+
+      gameGrid[row][col] = 0;
+      selectedCell.textContent = '';
+      selectedCell.classList.remove('error');
+    }
+
+    function isValidMove(row, col, num) {
+      for (let x = 0; x < 9; x++) {
+        if (x !== col && gameGrid[row][x] === num) return false;
+      }
+      for (let x = 0; x < 9; x++) {
+        if (x !== row && gameGrid[x][col] === num) return false;
+      }
+      let startRow = row - (row % 3);
+      let startCol = col - (col % 3);
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if ((startRow + i !== row || startCol + j !== col) &&
+              gameGrid[startRow + i][startCol + j] === num) return false;
+        }
+      }
+      return true;
+    }
+
+    function useHint() {
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          if (gameGrid[i][j] === 0) {
+            gameGrid[i][j] = solutionGrid[i][j];
+            const cell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
+            if (cell) {
+              cell.textContent = solutionGrid[i][j];
+              cell.style.background = 'rgba(0,200,83,0.4)';
+              setTimeout(() => { cell.style.background = ''; }, 1000);
             }
-        }
-        
-        // Infinity Mode START
-        function startInfinityMode() {
-            isInfinityMode = true;
-            showScreen('gameScreen');
-            
-            // UI Updates für Infinity
-            document.getElementById('levelDisplay').textContent = "∞";
-            document.getElementById('levelName').textContent = "EWIGE LIEBE";
-            document.getElementById('streakDisplay').style.display = 'inline';
-            document.getElementById('streakDisplay').textContent = `🔥 STREAK: ${currentStreak}`;
-            
-            // GENERATOR AUFRUFEN (35 Zahlen entfernen = Mittel)
-            const generator = new SudokuGenerator(9, 35); 
-            const generatedData = generator.fillValues();
-            
-            gameGrid = generatedData.puzzle;
-            solutionGrid = generatedData.solution;
-            
-            fixedCells = [];
-            for (let i = 0; i < 9; i++) {
-                for (let j = 0; j < 9; j++) {
-                    if (gameGrid[i][j] !== 0) fixedCells.push(i * 9 + j);
-                }
-            }
-            
-            renderGrid();
-            startTimer();
-        }
-        
-        function renderLevelSelect() {
-            const grid = document.getElementById('levelGrid');
-            grid.innerHTML = '';
-            
-            for (let i = 1; i <= 9; i++) {
-                const btn = document.createElement('div');
-                btn.className = 'level-btn';
-                btn.innerHTML = `<div style="font-size: 1.1rem;">${i}</div><div style="font-size: 0.65rem; font-family: 'Noto Sans JP';">${levels[i-1].name.substring(0, 8)}</div>`;
-                
-                if (i === 9) {
-                    btn.classList.add('final');
-                    btn.innerHTML = '👸 PRINZESSIN MARY';
-                }
-                
-                if (completedLevels.includes(i)) {
-                    btn.classList.add('completed');
-                    btn.onclick = () => startLevel(i);
-                } else if (i === 1 || completedLevels.includes(i - 1)) {
-                    btn.classList.add('available');
-                    btn.onclick = () => startLevel(i);
-                } else {
-                    btn.classList.add('locked');
-                    btn.innerHTML = '🔒';
-                }
-                
-                grid.appendChild(btn);
-            }
-        }
-        
-        function startLevel(level) {
-            isInfinityMode = false;
-            document.getElementById('streakDisplay').style.display = 'none';
-            
-            currentLevel = level;
-            document.getElementById('levelDisplay').textContent = `LEVEL ${level}`;
-            document.getElementById('levelName').textContent = levels[level-1].name;
-            document.getElementById('levelName').style.color = levels[level-1].color;
-            
-            generateSudoku(level);
-            renderGrid();
-            startTimer();
-            
-            showScreen('gameScreen');
-        }
-        
-        function generateSudoku(level) {
-            const data = levelData[level-1];
-            gameGrid = data.puzzle.map(row => [...row]);
-            solutionGrid = data.solution.map(row => [...row]);
-            
-            fixedCells = [];
-            for (let i = 0; i < 9; i++) {
-                for (let j = 0; j < 9; j++) {
-                    if (gameGrid[i][j] !== 0) {
-                        fixedCells.push(i * 9 + j);
-                    }
-                }
-            }
-        }
-        
-        function renderGrid() {
-            const grid = document.getElementById('sudokuGrid');
-            grid.innerHTML = '';
-            
-            for (let i = 0; i < 9; i++) {
-                for (let j = 0; j < 9; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.dataset.index = i * 9 + j;
-                    cell.dataset.row = i;
-                    cell.dataset.col = j;
-                    
-                    if (gameGrid[i][j] !== 0) {
-                        cell.textContent = gameGrid[i][j];
-                        if (fixedCells.includes(i * 9 + j)) {
-                            cell.classList.add('fixed');
-                        }
-                    }
-                    
-                    cell.onclick = () => selectCell(cell);
-                    grid.appendChild(cell);
-                }
-            }
-        }
-        
-        function selectCell(cell) {
-            if (cell.classList.contains('fixed')) return;
-            
-            document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
-            cell.classList.add('selected');
-            selectedCell = cell;
-        }
-        
-        function enterNumber(num) {
-            if (!selectedCell) return;
-            
-            const row = parseInt(selectedCell.dataset.row);
-            const col = parseInt(selectedCell.dataset.col);
-            
-            if (fixedCells.includes(row * 9 + col)) return;
-            
-            gameGrid[row][col] = num;
-            selectedCell.textContent = num;
-            selectedCell.classList.remove('error');
-            
-            if (!isValidMove(row, col, num)) {
-                selectedCell.classList.add('error');
-                shakeScreen();
-            }
-            
             checkWin();
+            return;
+          }
         }
-        
-        function clearCell() {
-            if (!selectedCell) return;
-            const row = parseInt(selectedCell.dataset.row);
-            const col = parseInt(selectedCell.dataset.col);
-            
-            if (fixedCells.includes(row * 9 + col)) return;
-            
-            gameGrid[row][col] = 0;
-            selectedCell.textContent = '';
-            selectedCell.classList.remove('error');
-        }
-        
-        function isValidMove(row, col, num) {
-            // Einfacher Check, ob die Zahl offensichtlich falsch ist (kollision)
-            // Die echte Lösung wird beim Win-Check geprüft
-            for (let x = 0; x < 9; x++) {
-                if (x !== col && gameGrid[row][x] === num) return false;
-            }
-            for (let x = 0; x < 9; x++) {
-                if (x !== row && gameGrid[x][col] === num) return false;
-            }
-            let startRow = row - row % 3;
-            let startCol = col - col % 3;
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    if ((startRow + i !== row || startCol + j !== col) && 
-                        gameGrid[startRow + i][startCol + j] === num) return false;
-                }
-            }
-            return true;
-        }
-        
-        function useHint() {
-            for (let i = 0; i < 9; i++) {
-                for (let j = 0; j < 9; j++) {
-                    if (gameGrid[i][j] === 0) {
-                        gameGrid[i][j] = solutionGrid[i][j];
-                        const cell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
-                        cell.textContent = solutionGrid[i][j];
-                        cell.style.background = 'rgba(0,200,83,0.4)';
-                        setTimeout(() => {
-                            cell.style.background = '';
-                        }, 1000);
-                        checkWin();
-                        return;
-                    }
-                }
-            }
-        }
-        
-        function checkWin() {
-            for (let i = 0; i < 9; i++) {
-                for (let j = 0; j < 9; j++) {
-                    if (gameGrid[i][j] !== solutionGrid[i][j]) return;
-                }
-            }
-            
-            clearInterval(timerInterval);
+      }
+    }
 
-            if (isInfinityMode) {
-                currentStreak++;
-                localStorage.setItem('bibsieStreak', currentStreak);
-                document.getElementById('streakDisplay').textContent = `🔥 STREAK: ${currentStreak}`;
-                showWin(); 
-                return; 
-            }
-            
-            if (!completedLevels.includes(currentLevel)) {
-                completedLevels.push(currentLevel);
-                localStorage.setItem('bibsieCompleted', JSON.stringify(completedLevels));
-            }
-            
-            if (currentLevel === 9) {
-                setTimeout(() => showFinal(), 1000);
-            } else {
-                setTimeout(() => showWin(), 500);
-            }
+    function checkWin() {
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          if (gameGrid[i][j] !== solutionGrid[i][j]) return;
         }
-        
-        function showWin() {
-            createHeartParticles();
-            document.getElementById('winOverlay').classList.add('active');
-        }
-        
-        function nextLevel() {
-            document.getElementById('winOverlay').classList.remove('active');
-            
-            if (isInfinityMode) {
-                startInfinityMode(); // Nächstes Zufalls-Level
-            } else if (currentLevel < 9) {
-                startLevel(currentLevel + 1); // Nächstes Story-Level
-            }
-        }
-        
-        function showFinal() {
-            createHeartParticles();
-            showScreen('finalScreen');
-            setInterval(() => createHeartParticles(true), 2000);
-        }
-        
-        function createHeartParticles(gold = false) {
-            for (let i = 0; i < 20; i++) {
-                setTimeout(() => {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle heart-particle';
-                    particle.textContent = gold ? '✨' : '💖';
-                    particle.style.left = Math.random() * 100 + 'vw';
-                    particle.style.top = '100vh';
-                    particle.style.color = gold ? '#FFD700' : '#FF6B9D';
-                    document.body.appendChild(particle);
-                    
-                    setTimeout(() => particle.remove(), 3000);
-                }, i * 100);
-            }
-        }
-        
-        function shakeScreen() {
-            document.body.style.animation = 'shake 0.5s';
-            setTimeout(() => {
-                document.body.style.animation = '';
-            }, 500);
-        }
-        
-        function startTimer() {
-            clearInterval(timerInterval);
-            timer = 0;
-            timerInterval = setInterval(() => {
-                timer++;
-                const mins = Math.floor(timer / 60).toString().padStart(2, '0');
-                const secs = (timer % 60).toString().padStart(2, '0');
-                document.getElementById('timer').textContent = `${mins}:${secs}`;
-            }, 1000);
-        }
-        
-        function backToMenu() {
-            clearInterval(timerInterval);
-            if (isInfinityMode) {
-                isInfinityMode = false;
-                showScreen('titleScreen'); // Infinity geht ins Hauptmenü
-            } else {
-                showScreen('levelScreen'); // Story geht zur Levelauswahl
-            }
-        }
-        
-        function resetGame() {
-            completedLevels = [];
-            localStorage.removeItem('bibsieCompleted');
-            showScreen('titleScreen');
-        }
-        
-        // Tastatur Support
-        document.addEventListener('keydown', (e) => {
-            if (document.getElementById('gameScreen').classList.contains('active')) {
-                if (e.key >= '1' && e.key <= '9') {
-                    enterNumber(parseInt(e.key));
-                } else if (e.key === 'Backspace' || e.key === 'Delete') {
-                    clearCell();
-                }
-            }
-        });
-        
-        // Touch Support verbessern
-        document.addEventListener('touchstart', function() {}, {passive: true});
+      }
 
-    </script>
+      clearInterval(timerInterval);
+
+      if (isInfinityMode) {
+        currentStreak++;
+        localStorage.setItem('bibsieStreak', currentStreak);
+        document.getElementById('streakDisplay').textContent = `🔥 STREAK: ${currentStreak}`;
+        showWin();
+        return;
+      }
+
+      if (!completedLevels.includes(currentLevel)) {
+        completedLevels.push(currentLevel);
+        localStorage.setItem('bibsieCompleted', JSON.stringify(completedLevels));
+      }
+
+      if (currentLevel === 9) {
+        setTimeout(() => showFinal(), 1000);
+      } else {
+        setTimeout(() => showWin(), 500);
+      }
+    }
+
+    function showWin() {
+      createHeartParticles();
+      document.getElementById('winOverlay').classList.add('active');
+    }
+
+    function nextLevel() {
+      document.getElementById('winOverlay').classList.remove('active');
+
+      if (isInfinityMode) {
+        startInfinityMode('random');
+      } else if (currentLevel < 9) {
+        startLevel(currentLevel + 1);
+      }
+    }
+
+    function showFinal() {
+      createHeartParticles();
+      showScreen('finalScreen');
+      setInterval(() => createHeartParticles(true), 2000);
+    }
+
+    function createHeartParticles(gold = false) {
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const particle = document.createElement('div');
+          particle.className = 'particle heart-particle';
+          particle.textContent = gold ? '✨' : '💖';
+          particle.style.left = Math.random() * 100 + 'vw';
+          particle.style.top = '100vh';
+          particle.style.color = gold ? '#FFD700' : '#FF6B9D';
+          document.body.appendChild(particle);
+          setTimeout(() => particle.remove(), 3000);
+        }, i * 100);
+      }
+    }
+
+    function shakeScreen() {
+      document.body.style.animation = 'shake 0.5s';
+      setTimeout(() => { document.body.style.animation = ''; }, 500);
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timer = 0;
+      timerInterval = setInterval(() => {
+        timer++;
+        const mins = Math.floor(timer / 60).toString().padStart(2, '0');
+        const secs = (timer % 60).toString().padStart(2, '0');
+        document.getElementById('timer').textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function backToMenu() {
+      clearInterval(timerInterval);
+      if (isInfinityMode) {
+        isInfinityMode = false;
+        showScreen('titleScreen');
+      } else {
+        showScreen('levelScreen');
+      }
+    }
+
+    function resetGame() {
+      completedLevels = [];
+      localStorage.removeItem('bibsieCompleted');
+      showScreen('titleScreen');
+    }
+
+    // Tastatur Support
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('gameScreen').classList.contains('active')) {
+        if (e.key >= '1' && e.key <= '9') {
+          enterNumber(parseInt(e.key));
+        } else if (e.key === 'Backspace' || e.key === 'Delete') {
+          clearCell();
+        } else if (e.key === 'Escape') {
+          closeDifficulty();
+        }
+      }
+    });
+
+    // Touch Support
+    document.addEventListener('touchstart', function() {}, { passive: true });
+
+    // Auto Start Screen nach Video Fallback
+    (function init() {
+      // Wenn Video sofort failt, skipVideo übernimmt
+      // Falls das Video sauber läuft, kommt titleScreen über ended Event
+    })();
+  </script>
 </body>
 </html>
